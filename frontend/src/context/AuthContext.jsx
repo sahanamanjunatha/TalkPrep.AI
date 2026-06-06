@@ -58,9 +58,24 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     // Frontend-only mock login for demo purposes
     const isMockAdmin = email === 'admin@talkprep.ai';
+    
+    // Extract name from personal email
+    let displayName = 'John Candidate';
+    if (email) {
+      if (isMockAdmin) {
+        displayName = 'System Admin';
+      } else {
+        const parts = email.split('@');
+        if (parts.length > 0) {
+          const rawName = parts[0];
+          displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+        }
+      }
+    }
+
     const mockUserObj = {
       id: isMockAdmin ? 'mock-admin-id-12345' : 'mock-user-id-12345',
-      name: isMockAdmin ? 'System Admin' : 'John Candidate',
+      name: displayName,
       email: email || 'user@talkprep.ai',
       role: isMockAdmin ? 'admin' : 'user',
       targetRole: isMockAdmin ? 'Lead Architect' : 'Software Engineer',

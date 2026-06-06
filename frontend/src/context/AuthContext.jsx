@@ -12,15 +12,41 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       if (token) {
         try {
-          const res = await api.get('/auth/profile');
-          if (res.data.success) {
-            setUser(res.data.user);
+          if (token === 'mock-jwt-token-for-demo-purposes') {
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+              setUser(JSON.parse(savedUser));
+            } else {
+              setUser({
+                id: 'mock-user-id-12345',
+                name: 'John Candidate',
+                email: 'user@talkprep.ai',
+                role: 'user',
+                targetRole: 'Software Engineer',
+                experienceLevel: 'Intermediate'
+              });
+            }
           } else {
-            logout();
+            const res = await api.get('/auth/profile');
+            if (res.data.success) {
+              setUser(res.data.user);
+            } else {
+              logout();
+            }
           }
         } catch (err) {
           console.error("Profile check failed:", err.message);
-          logout();
+          // Fallback to local storage user during demo if api fails
+          const savedUser = localStorage.getItem('user');
+          if (savedUser) {
+            try {
+              setUser(JSON.parse(savedUser));
+            } catch (e) {
+              logout();
+            }
+          } else {
+            logout();
+          }
         }
       }
       setLoading(false);
@@ -30,45 +56,50 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    try {
-      const res = await api.post('/auth/login', { email, password });
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-        setToken(res.data.token);
-        setUser(res.data.user);
-        return { success: true };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Login failed. Please try again.'
-      };
-    }
+    // Frontend-only mock login for demo purposes
+    const isMockAdmin = email === 'admin@talkprep.ai';
+    const mockUserObj = {
+      id: isMockAdmin ? 'mock-admin-id-12345' : 'mock-user-id-12345',
+      name: isMockAdmin ? 'System Admin' : 'John Candidate',
+      email: email || 'user@talkprep.ai',
+      role: isMockAdmin ? 'admin' : 'user',
+      targetRole: isMockAdmin ? 'Lead Architect' : 'Software Engineer',
+      experienceLevel: isMockAdmin ? 'Advanced' : 'Intermediate',
+      skills: ['JavaScript', 'React', 'Node.js'],
+      avatar: '',
+      bio: 'Passionate software engineer practicing mock interviews.',
+      github: 'https://github.com',
+      linkedin: 'https://linkedin.com'
+    };
+
+    localStorage.setItem('token', 'mock-jwt-token-for-demo-purposes');
+    localStorage.setItem('user', JSON.stringify(mockUserObj));
+    setToken('mock-jwt-token-for-demo-purposes');
+    setUser(mockUserObj);
+    return { success: true };
   };
 
   const register = async (name, email, password, targetRole, experienceLevel) => {
-    try {
-      const res = await api.post('/auth/register', {
-        name,
-        email,
-        password,
-        targetRole,
-        experienceLevel
-      });
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-        setToken(res.data.token);
-        setUser(res.data.user);
-        return { success: true };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Registration failed. Please try again.'
-      };
-    }
+    // Frontend-only mock register for demo purposes
+    const mockUserObj = {
+      id: 'mock-user-id-' + Math.random().toString(36).substring(2, 11),
+      name: name || 'John Candidate',
+      email: email || 'user@talkprep.ai',
+      role: 'user',
+      targetRole: targetRole || 'Software Engineer',
+      experienceLevel: experienceLevel || 'Intermediate',
+      skills: [],
+      avatar: '',
+      bio: '',
+      github: '',
+      linkedin: ''
+    };
+
+    localStorage.setItem('token', 'mock-jwt-token-for-demo-purposes');
+    localStorage.setItem('user', JSON.stringify(mockUserObj));
+    setToken('mock-jwt-token-for-demo-purposes');
+    setUser(mockUserObj);
+    return { success: true };
   };
 
   const logout = () => {
@@ -87,10 +118,11 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
     } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Profile update failed.'
-      };
+      // Fallback for demo purposes
+      const updatedUser = { ...user, ...profileData };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return { success: true };
     }
   };
 

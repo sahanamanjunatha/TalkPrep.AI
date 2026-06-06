@@ -299,11 +299,6 @@ const InterviewRoom = () => {
           setUserAnswer('');
           
           addToast('Answer submitted. Here is your AI analysis.', 'success');
-
-          // Speak next question aloud
-          setTimeout(() => {
-            speakText(res.data.currentQuestionText);
-          }, 1500);
         }
       }
     } catch (err) {
@@ -913,7 +908,10 @@ const InterviewRoom = () => {
 
               <div className="p-4 bg-slate-950 border-t border-slate-900 flex justify-end">
                 <button
-                  onClick={() => setShowFeedbackModal(false)}
+                  onClick={() => {
+                    setShowFeedbackModal(false);
+                    speakText(currentQuestionText);
+                  }}
                   className="px-5 py-2 rounded-xl bg-brand-primary hover:bg-brand-hover text-xs font-semibold text-slate-950 shadow-glow-cyan cursor-pointer"
                 >
                   Continue to Next Question

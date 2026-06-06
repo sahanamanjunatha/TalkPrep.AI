@@ -7,6 +7,147 @@ const api = axios.create({
   }
 });
 
+// Heuristic evaluation logic for mock platform answers
+const evaluateAnswer = (questionText, answerText) => {
+  const answer = (answerText || '').trim().toLowerCase();
+  
+  // 1. Extreme short answers get very low score
+  if (answer.length < 15) {
+    return {
+      score: 30,
+      feedback: 'Your answer is extremely brief and lacks explanation. Try to elaborate on your points.',
+      strengths: ['None noted due to short response.'],
+      weaknesses: ['Too brief, no depth, missing core definitions.'],
+      improvementSuggestions: ['Elaborate on definitions and give runtime examples.'],
+      modelAnswer: 'A model answer would explain the core concepts with detail and contrast the options.'
+    };
+  }
+
+  // 2. Unsure answers
+  if (answer.includes('don\'t know') || answer.includes('dont know') || answer.includes('no idea') || answer.includes('unsure')) {
+    return {
+      score: 40,
+      feedback: 'You stated you were unsure or did not know the answer. Let\'s practice framing what you do know.',
+      strengths: ['Honest feedback.'],
+      weaknesses: ['Lacks conceptual understanding of the topic.'],
+      improvementSuggestions: ['Review basic terminology and definitions for this role.'],
+      modelAnswer: 'A model answer would detail the definitions, scope, and trade-offs of this specific topic.'
+    };
+  }
+
+  // 3. Dynamic scoring based on keywords
+  let baseScore = 60; // Starting score for reasonable length
+  let matchedKeywords = [];
+  let strengths = [];
+  let weaknesses = [];
+  let improvementSuggestions = [];
+  let feedback = '';
+
+  const qLower = questionText.toLowerCase();
+
+  if (qLower.includes('let') && qLower.includes('const') && qLower.includes('var')) {
+    const keywords = ['scope', 'hoist', 'block', 'function', 'assign', 'es6', 'reassign'];
+    keywords.forEach(kw => {
+      if (answer.includes(kw)) {
+        baseScore += 5;
+        matchedKeywords.push(kw);
+      }
+    });
+    
+    if (answer.includes('block') || answer.includes('scope')) {
+      strengths.push('Correctly identified block-scoping vs function-scoping differences.');
+    }
+    if (answer.includes('hoist')) {
+      strengths.push('Identified hoisting behaviors of var compared to let/const.');
+    } else {
+      weaknesses.push('Missed explaining how hoisting affects variable creation.');
+      improvementSuggestions.push('Add an explanation of variable hoisting to highlight lifecycle differences.');
+    }
+    feedback = 'You provided a reasonable explanation of JavaScript variables, detailing scope differences.';
+  } else if (qLower.includes('virtual dom') || qLower.includes('react')) {
+    const keywords = ['diff', 'reconciliation', 'memory', 'render', 'batch', 'update', 'performance'];
+    keywords.forEach(kw => {
+      if (answer.includes(kw)) {
+        baseScore += 5;
+        matchedKeywords.push(kw);
+      }
+    });
+    if (answer.includes('diff') || answer.includes('reconciliation')) {
+      strengths.push('Explained React reconciliation diffing algorithms accurately.');
+    } else {
+      weaknesses.push('Did not mention the reconciliation diffing algorithm specifically.');
+      improvementSuggestions.push('Incorporate reconciliation concepts to demonstrate technical React depth.');
+    }
+    feedback = 'You described the virtual DOM framework well, identifying performance boosts.';
+  } else if (qLower.includes('render performance') || qLower.includes('frequent state')) {
+    const keywords = ['memo', 'usecallback', 'usememo', 'virtual', 'state', 'render', 'split', 'coloc'];
+    keywords.forEach(kw => {
+      if (answer.includes(kw)) {
+        baseScore += 5;
+        matchedKeywords.push(kw);
+      }
+    });
+    if (answer.includes('memo') || answer.includes('usecallback') || answer.includes('usememo')) {
+      strengths.push('Suggested component memoization hooks (useCallback, useMemo, memo).');
+    } else {
+      weaknesses.push('Missed explaining how hooks memoize dependencies.');
+      improvementSuggestions.push('Discuss react memoization hooks to improve render optimization options.');
+    }
+    feedback = 'Great optimization tips. You mentioned state and hook caching strategies.';
+  } else if (qLower.includes('join') || qLower.includes('motivated')) {
+    const keywords = ['growth', 'culture', 'value', 'team', 'opportunity', 'align', 'innov'];
+    keywords.forEach(kw => {
+      if (answer.includes(kw)) {
+        baseScore += 5;
+        matchedKeywords.push(kw);
+      }
+    });
+    strengths.push('Showed clear cultural alignment and motivation to grow.');
+    feedback = 'Excellent behavioral pacing. You outlined clear professional goals.';
+  } else if (qLower.includes('fail') || qLower.includes('setback')) {
+    const keywords = ['learn', 'mistake', 'resolve', 'responsibility', 'ownership', 'correct', 'outcome'];
+    keywords.forEach(kw => {
+      if (answer.includes(kw)) {
+        baseScore += 5;
+        matchedKeywords.push(kw);
+      }
+    });
+    if (answer.includes('learn') || answer.includes('ownership')) {
+      strengths.push('Took direct responsibility and highlighted constructive lessons learned.');
+    } else {
+      weaknesses.push('Lacked clear explanation of lessons learned or ownership.');
+      improvementSuggestions.push('Ensure you emphasize what you learned from the mistake to show growth.');
+    }
+    feedback = 'Honest reflection. You framed the project setback with a constructive resolution.';
+  } else {
+    // General fallback evaluation based on word count
+    const wordsCount = answer.split(/\s+/).length;
+    if (wordsCount > 50) {
+      baseScore += 15;
+    } else if (wordsCount > 25) {
+      baseScore += 5;
+    }
+    strengths.push('Provided a descriptive response to the question prompt.');
+    feedback = 'Your answer addresses the prompt requirements details well.';
+  }
+
+  // Cap score between 45 and 98
+  const score = Math.max(45, Math.min(98, baseScore));
+  
+  if (strengths.length === 0) strengths.push('Clear articulation and responsive delivery.');
+  if (weaknesses.length === 0) weaknesses.push('Could provide more architectural context.');
+  if (improvementSuggestions.length === 0) improvementSuggestions.push('Support your statements with detailed real-world project examples.');
+
+  return {
+    score,
+    feedback,
+    strengths,
+    weaknesses,
+    improvementSuggestions,
+    modelAnswer: 'A model answer would explain key concepts, name relevant design considerations, outline typical implementation challenges, and detail a robust step-by-step resolution.'
+  };
+};
+
 // Adapter override for demo/mock mode
 const originalAdapter = api.defaults.adapter || axios.defaults.adapter;
 api.defaults.adapter = async (config) => {
@@ -266,27 +407,11 @@ api.defaults.adapter = async (config) => {
         const currentIndex = sessionState.currentIndex;
         const currentQuestion = sessionState.questions[currentIndex];
         
-        const qScore = 75 + Math.floor(Math.random() * 20);
+        const evaluation = evaluateAnswer(currentQuestion, answerText);
         
         sessionState.answers.push({
           questionText: currentQuestion,
-          evaluation: {
-            score: qScore,
-            feedback: 'Your answer is well-structured and covers the key points successfully.',
-            strengths: [
-              'Demonstrates solid understanding of core software engineering patterns.',
-              'Articulates trade-offs clearly with structured logical sections.'
-            ],
-            weaknesses: [
-              'Could expand more on performance optimization constraints.',
-              'Avoid using too many fillers or conversational hesitations.'
-            ],
-            improvementSuggestions: [
-              'Try to explicitly quote runtime complexity where applicable.',
-              'Practice pacing by speaking slightly slower to improve articulation.'
-            ],
-            modelAnswer: 'A model answer would explain key concepts, name relevant design considerations, outline typical implementation challenges, and detail a robust step-by-step resolution.'
-          }
+          evaluation: evaluation
         });
         
         const nextIndex = currentIndex + 1;
@@ -344,23 +469,7 @@ api.defaults.adapter = async (config) => {
           data = {
             success: true,
             isFinished: false,
-            evaluation: {
-              score: qScore,
-              feedback: 'Well explained. Good articulation.',
-              strengths: [
-                'Demonstrates solid understanding of core software engineering patterns.',
-                'Articulates trade-offs clearly with structured logical sections.'
-              ],
-              weaknesses: [
-                'Could expand more on performance optimization constraints.',
-                'Avoid using too many fillers or conversational hesitations.'
-              ],
-              improvementSuggestions: [
-                'Try to explicitly quote runtime complexity where applicable.',
-                'Practice pacing by speaking slightly slower to improve articulation.'
-              ],
-              modelAnswer: 'A model answer would explain key concepts, name relevant design considerations, outline typical implementation challenges, and detail a robust step-by-step resolution.'
-            },
+            evaluation: evaluation,
             currentQuestionText: sessionState.questions[nextIndex],
             currentQuestionIndex: nextIndex
           };

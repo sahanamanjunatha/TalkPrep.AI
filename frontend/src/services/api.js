@@ -51,7 +51,27 @@ api.defaults.adapter = async (config) => {
               type: 'Technical',
               difficulty: 'Intermediate',
               overallScore: 82,
-              createdAt: new Date().toISOString()
+              createdAt: new Date().toISOString(),
+              questions: [
+                {
+                  questionText: 'Explain the event loop in JavaScript and how it handles asynchronous operations.',
+                  evaluation: {
+                    score: 82,
+                    feedback: 'Your answer is well-structured and covers the key points successfully.',
+                    strengths: [
+                      'Clear explanation of the Call Stack and Task Queues.',
+                      'Good pacing and vocal articulation.'
+                    ],
+                    weaknesses: [
+                      'Could mention the Microtask Queue specifically.'
+                    ],
+                    improvementSuggestions: [
+                      'Explain the priority differences between promise callbacks and timeouts.'
+                    ],
+                    modelAnswer: 'JavaScript executes synchronous code on the call stack. Asynchronous callbacks are queued in the Task/Microtask queues, which the event loop moves to the stack once empty.'
+                  }
+                }
+              ]
             }
           ] : [],
           recentResume: isDefaultUser ? {
@@ -252,7 +272,20 @@ api.defaults.adapter = async (config) => {
           questionText: currentQuestion,
           evaluation: {
             score: qScore,
-            feedback: 'Your answer is well-structured and covers the key points successfully.'
+            feedback: 'Your answer is well-structured and covers the key points successfully.',
+            strengths: [
+              'Demonstrates solid understanding of core software engineering patterns.',
+              'Articulates trade-offs clearly with structured logical sections.'
+            ],
+            weaknesses: [
+              'Could expand more on performance optimization constraints.',
+              'Avoid using too many fillers or conversational hesitations.'
+            ],
+            improvementSuggestions: [
+              'Try to explicitly quote runtime complexity where applicable.',
+              'Practice pacing by speaking slightly slower to improve articulation.'
+            ],
+            modelAnswer: 'A model answer would explain key concepts, name relevant design considerations, outline typical implementation challenges, and detail a robust step-by-step resolution.'
           }
         });
         
@@ -313,7 +346,20 @@ api.defaults.adapter = async (config) => {
             isFinished: false,
             evaluation: {
               score: qScore,
-              feedback: 'Well explained. Good articulation.'
+              feedback: 'Well explained. Good articulation.',
+              strengths: [
+                'Demonstrates solid understanding of core software engineering patterns.',
+                'Articulates trade-offs clearly with structured logical sections.'
+              ],
+              weaknesses: [
+                'Could expand more on performance optimization constraints.',
+                'Avoid using too many fillers or conversational hesitations.'
+              ],
+              improvementSuggestions: [
+                'Try to explicitly quote runtime complexity where applicable.',
+                'Practice pacing by speaking slightly slower to improve articulation.'
+              ],
+              modelAnswer: 'A model answer would explain key concepts, name relevant design considerations, outline typical implementation challenges, and detail a robust step-by-step resolution.'
             },
             currentQuestionText: sessionState.questions[nextIndex],
             currentQuestionIndex: nextIndex

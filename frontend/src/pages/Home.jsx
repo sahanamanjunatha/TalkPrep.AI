@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Terminal, FileText, ChevronDown, Check, Shield, Star, Users } from 'lucide-react';
+import { ArrowRight, Sparkles, Terminal, FileText, ChevronDown, Check, Shield, Star, Users, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageWrapper from '../components/PageWrapper';
 
@@ -11,18 +11,23 @@ const Home = () => {
   const features = [
     {
       icon: Sparkles,
-      title: 'Speech AI Virtual Mock',
-      desc: 'Answer interview prompts aloud. Our system listens, transcribes your answers in real-time, and scores your replies.'
+      title: 'Mock Interviews',
+      desc: 'Answer interview prompts aloud. Our speech AI listens, transcribes your replies in real-time, and generates granular scores.'
     },
     {
       icon: Terminal,
-      title: 'Integrated Coding IDE',
-      desc: 'Select coding challenges, write solutions in our rich editor, compile, and run against test cases with live AI helper tips.'
+      title: 'Coding IDE',
+      desc: 'Select coding challenges, write solutions in our rich interactive editor, run test cases, and receive live AI helper tips.'
+    },
+    {
+      icon: Eye,
+      title: 'ATS Resume Analyzer',
+      desc: 'Upload your CV to analyze ATS compatibility indices, scan keyword matches, and receive instant structural suggestions.'
     },
     {
       icon: FileText,
-      title: 'ATS Resume Scans',
-      desc: 'Upload your CV to scan ATS compatibility indices, keyword matches, and receive structuring tips instantly.'
+      title: 'Resume Builder',
+      desc: 'Craft highly professional, single-sheet resumes using curated layouts and export them directly to print-ready PDF.'
     }
   ];
 
@@ -92,7 +97,7 @@ const Home = () => {
               to="/auth"
               className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary text-sm font-semibold text-white shadow-lg hover:shadow-cyan-500/10 hover:opacity-90 flex items-center justify-center gap-2 group transition-all"
             >
-              Start Free Practice
+              Get Started
               <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link

@@ -24,7 +24,8 @@ import {
   Sliders,
   X,
   Check,
-  Code
+  Code,
+  Mic
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -118,7 +119,7 @@ const Dashboard = () => {
       <PageWrapper className="justify-center items-center py-20 bg-slate-950">
         <div className="flex flex-col items-center gap-4">
           <span className="w-10 h-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-500 font-mono tracking-wider">LOADING USER DASHBOARD...</p>
+          <p className="text-sm text-slate-500 font-mono tracking-wider">Loading user dashboard...</p>
         </div>
       </PageWrapper>
     );
@@ -151,6 +152,19 @@ const Dashboard = () => {
     { day: 'Sat', count: 0 },
     { day: 'Sun', count: 0 }
   ];
+
+  const hasActivity = stats.interviewsCompleted > 0 && weeklyActivity.some(w => w.count > 0);
+
+  const getDifficultyBadge = (difficulty) => {
+    const diff = (difficulty || 'Easy').toLowerCase();
+    if (diff === 'easy') {
+      return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    }
+    if (diff === 'medium') {
+      return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+    }
+    return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+  };
 
   // SVG Radial Gauge parameters
   const radius = 50;
@@ -202,15 +216,18 @@ const Dashboard = () => {
   ];
 
   const learningPoints = [
-    { title: 'HR Interview Skills', desc: 'Master common behavior questions and cultural fit frameworks.', icon: Award, color: 'text-pink-400 bg-pink-500/10' },
-    { title: 'Communication Skills', desc: 'Refine vocal clarity, pacing, and vocabulary for structured delivery.', icon: Sparkles, color: 'text-indigo-400 bg-indigo-500/10' },
-    { title: 'Technical Problem Solving', desc: 'Break down complex algorithms and talk through your logical steps.', icon: Terminal, color: 'text-blue-400 bg-blue-500/10' },
-    { title: 'Resume Building', desc: 'Design ATS-optimized, professional-grade single-page layouts.', icon: FileText, color: 'text-amber-400 bg-amber-500/10' },
-    { title: 'Coding Interview Prep', desc: 'Practice mock IDE challenges with real-time feedback hints.', icon: Code, color: 'text-emerald-400 bg-emerald-500/10' },
-    { title: 'Aptitude Practice', desc: 'Sharpen logical reasoning, mathematical concepts, and timers.', icon: Sliders, color: 'text-violet-400 bg-violet-500/10' },
-    { title: 'Confidence Improvement', desc: 'Overcome stage fright with repetitive interactive mock rounds.', icon: Zap, color: 'text-yellow-400 bg-yellow-500/10' },
-    { title: 'Real Interview Experience', desc: 'Simulate high-pressure whiteboard sessions and board panel loops.', icon: GraduationCap, color: 'text-cyan-400 bg-cyan-500/10' }
+    { title: 'HR interview skills', desc: 'Master common behavior questions and cultural fit frameworks.', icon: Award, color: 'text-pink-400 bg-pink-500/10' },
+    { title: 'Communication skills', desc: 'Refine vocal clarity, pacing, and vocabulary for structured delivery.', icon: Sparkles, color: 'text-indigo-400 bg-indigo-500/10' },
+    { title: 'Technical problem solving', desc: 'Break down complex algorithms and talk through your logical steps.', icon: Terminal, color: 'text-blue-400 bg-blue-500/10' },
+    { title: 'Resume building', desc: 'Design ATS-optimized, professional-grade single-page layouts.', icon: FileText, color: 'text-amber-400 bg-amber-500/10' },
+    { title: 'Coding interview prep', desc: 'Practice mock IDE challenges with real-time feedback hints.', icon: Code, color: 'text-emerald-400 bg-emerald-500/10' },
+    { title: 'Aptitude practice', desc: 'Sharpen logical reasoning, mathematical concepts, and timers.', icon: Sliders, color: 'text-violet-400 bg-violet-500/10' },
+    { title: 'Confidence improvement', desc: 'Overcome stage fright with repetitive interactive mock rounds.', icon: Zap, color: 'text-yellow-400 bg-yellow-500/10' },
+    { title: 'Real interview experience', desc: 'Simulate high-pressure whiteboard sessions and board panel loops.', icon: GraduationCap, color: 'text-cyan-400 bg-cyan-500/10' }
   ];
+
+  const coreSkills = learningPoints.slice(0, 4);
+  const bonusSkills = learningPoints.slice(4, 8);
 
   return (
     <PageWrapper className="bg-slate-950 text-slate-100 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative overflow-hidden font-sans">
@@ -244,7 +261,7 @@ const Dashboard = () => {
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                   Welcome back, {user?.name || 'Practicer'}!
                 </h1>
-                <span className="text-[10px] bg-brand-primary/15 text-brand-primary border border-brand-primary/35 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                <span className="text-[10px] bg-brand-primary/15 text-brand-primary border border-brand-primary/35 px-2 py-0.5 rounded-full font-bold tracking-wider">
                   Candidate
                 </span>
               </div>
@@ -258,20 +275,20 @@ const Dashboard = () => {
           </div>
           
           <div className="flex flex-wrap justify-center gap-3 shrink-0">
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 text-xs sm:text-sm font-semibold text-slate-300 flex items-center gap-1.5 hover:bg-slate-900 transition-colors shadow-lg cursor-pointer"
-            >
-              <Edit2 className="w-4 h-4" />
-              Edit Profile
-            </button>
             <Link
               to="/interview"
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-xs sm:text-sm font-semibold text-white shadow-glow-cyan flex items-center gap-1.5 hover:opacity-90 transition-opacity animate-pulse-slow"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-xs sm:text-sm font-bold text-white shadow-glow-cyan flex items-center gap-1.5 hover:opacity-95 transition-opacity duration-200"
             >
               <Sparkles className="w-4 h-4" />
               Start Voice AI Interview
             </Link>
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl border border-slate-800 bg-transparent text-xs sm:text-sm font-semibold text-slate-400 flex items-center gap-1.5 hover:bg-slate-900/40 hover:text-slate-200 transition-colors cursor-pointer"
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit Profile
+            </button>
           </div>
         </div>
       </div>
@@ -280,23 +297,49 @@ const Dashboard = () => {
       <div className="mb-10 p-6 sm:p-8 rounded-3xl border border-slate-900 bg-slate-900/10 relative overflow-hidden">
         <div className="flex items-center gap-2 mb-6">
           <BookOpen className="w-5 h-5 text-brand-primary" />
-          <h2 className="text-sm font-bold text-slate-400 tracking-wider uppercase">What You Will Learn</h2>
+          <h2 className="text-sm font-bold text-slate-400 tracking-wider">What you will learn</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {learningPoints.map((pt, idx) => {
-            const Icon = pt.icon;
-            return (
-              <div key={idx} className="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
-                <div className={`p-2 rounded-lg shrink-0 ${pt.color}`}>
-                  <Icon className="w-4 h-4" />
+        
+        {/* Core skills */}
+        <div className="mb-6">
+          <h3 className="text-xs font-bold text-brand-primary tracking-wider mb-3">Core skills</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {coreSkills.map((pt, idx) => {
+              const Icon = pt.icon;
+              return (
+                <div key={idx} className="p-4 rounded-xl border border-brand-primary/20 bg-slate-950/50 flex items-start gap-3.5 hover:border-brand-primary/45 transition-all shadow-[0_0_10px_rgba(6,182,212,0.03)]">
+                  <div className={`p-2 rounded-lg shrink-0 ${pt.color}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white leading-tight">{pt.title}</h4>
+                    <p className="text-[10px] text-slate-500 mt-1 leading-normal">{pt.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xs font-bold text-white leading-tight">{pt.title}</h4>
-                  <p className="text-[10px] text-slate-500 mt-1 leading-normal">{pt.desc}</p>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Bonus skills */}
+        <div>
+          <h3 className="text-xs font-bold text-slate-500 tracking-wider mb-3">Bonus skills</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {bonusSkills.map((pt, idx) => {
+              const Icon = pt.icon;
+              return (
+                <div key={idx} className="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+                  <div className={`p-2 rounded-lg shrink-0 ${pt.color}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white leading-tight">{pt.title}</h4>
+                    <p className="text-[10px] text-slate-500 mt-1 leading-normal">{pt.desc}</p>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -304,7 +347,7 @@ const Dashboard = () => {
       <div className="mb-10">
         <div className="flex items-center gap-2 mb-6">
           <GraduationCap className="w-5 h-5 text-brand-secondary" />
-          <h2 className="text-sm font-bold text-slate-400 tracking-wider uppercase">Interactive Practice Hub</h2>
+          <h2 className="text-sm font-bold text-slate-400 tracking-wider">Interactive practice hub</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
           {features.map((feature, idx) => {
@@ -320,7 +363,7 @@ const Dashboard = () => {
                     <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800 text-white shrink-0">
                       <IconComponent className="w-5 h-5" />
                     </div>
-                    <span className="text-[8px] font-extrabold bg-slate-950/60 border border-slate-850 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="text-[8px] font-extrabold bg-slate-950/60 border border-slate-850 px-2 py-0.5 rounded-full tracking-wider">
                       {feature.badge}
                     </span>
                   </div>
@@ -351,8 +394,12 @@ const Dashboard = () => {
             <CheckCircle className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 font-medium uppercase tracking-wider">Interviews</p>
-            <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{stats.interviewsCompleted}</h3>
+            <p className="text-[10px] sm:text-xs text-slate-500 font-medium tracking-wider">Interviews</p>
+            {stats.interviewsCompleted === 0 ? (
+              <p className="text-xs italic text-slate-500 font-normal mt-1">Not started yet</p>
+            ) : (
+              <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{stats.interviewsCompleted}</h3>
+            )}
           </div>
         </div>
 
@@ -362,8 +409,12 @@ const Dashboard = () => {
             <Terminal className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 font-medium uppercase tracking-wider">Codes Solved</p>
-            <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{stats.challengesSolved}</h3>
+            <p className="text-[10px] sm:text-xs text-slate-500 font-medium tracking-wider">Codes solved</p>
+            {stats.interviewsCompleted === 0 ? (
+              <p className="text-xs italic text-slate-500 font-normal mt-1">Not started yet</p>
+            ) : (
+              <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{stats.challengesSolved}</h3>
+            )}
           </div>
         </div>
 
@@ -373,8 +424,12 @@ const Dashboard = () => {
             <Zap className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 font-medium uppercase tracking-wider">Day Streak</p>
-            <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{stats.streakCount}</h3>
+            <p className="text-[10px] sm:text-xs text-slate-500 font-medium tracking-wider">Day streak</p>
+            {stats.interviewsCompleted === 0 ? (
+              <p className="text-xs italic text-slate-500 font-normal mt-1">Not started yet</p>
+            ) : (
+              <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{stats.streakCount}</h3>
+            )}
           </div>
         </div>
 
@@ -384,8 +439,12 @@ const Dashboard = () => {
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 font-medium uppercase tracking-wider">Avg Score</p>
-            <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{avgScore}%</h3>
+            <p className="text-[10px] sm:text-xs text-slate-500 font-medium tracking-wider">Avg score</p>
+            {stats.interviewsCompleted === 0 ? (
+              <p className="text-xs italic text-slate-500 font-normal mt-1">Not started yet</p>
+            ) : (
+              <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{avgScore}%</h3>
+            )}
           </div>
         </div>
 
@@ -395,74 +454,98 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
         
         {/* SVG Circle Gauge Widget */}
-        <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 flex flex-col items-center justify-center text-center">
-          <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-6">Performance Gauge</h3>
-          <div className="relative w-36 h-36 flex items-center justify-center">
-            {/* SVG circle */}
-            <svg className="w-full h-full transform -rotate-90">
-              <circle
-                cx="72"
-                cy="72"
-                r={radius}
-                className="stroke-slate-900 fill-none"
-                strokeWidth="10"
-              />
-              <motion.circle
-                cx="72"
-                cy="72"
-                r={radius}
-                className="stroke-brand-primary fill-none"
-                strokeWidth="10"
-                strokeDasharray={circumference}
-                initial={{ strokeDashoffset: circumference }}
-                animate={{ strokeDashoffset }}
-                transition={{ duration: 1, ease: 'easeInOut' }}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute text-center">
-              <span className="text-3xl font-extrabold text-white leading-none">{avgScore}</span>
-              <span className="text-xs text-slate-500 block mt-0.5">% Avg</span>
+        <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between text-center min-h-[280px]">
+          <h3 className="text-sm font-semibold text-slate-400">Performance gauge</h3>
+          {stats.interviewsCompleted === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-6">
+              <p className="text-xs text-slate-400 max-w-[200px] leading-relaxed mb-6">
+                Your score will appear here after your first interview session.
+              </p>
+              <Link
+                to="/interview"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-xs font-semibold text-white shadow-glow-cyan hover:opacity-90 transition-opacity"
+              >
+                Start Now →
+              </Link>
             </div>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-6 leading-relaxed max-w-[200px]">
-            Keep scoring above 80% to maintain your Honor Graduate badge.
-          </p>
+          ) : (
+            <>
+              <div className="relative w-36 h-36 flex items-center justify-center mx-auto mt-4">
+                {/* SVG circle */}
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle
+                    cx="72"
+                    cy="72"
+                    r={radius}
+                    className="stroke-slate-900 fill-none"
+                    strokeWidth="10"
+                  />
+                  <motion.circle
+                    cx="72"
+                    cy="72"
+                    r={radius}
+                    className="stroke-brand-primary fill-none"
+                    strokeWidth="10"
+                    strokeDasharray={circumference}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset }}
+                    transition={{ duration: 1, ease: 'easeInOut' }}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute text-center">
+                  <span className="text-3xl font-extrabold text-white leading-none">{avgScore}</span>
+                  <span className="text-xs text-slate-500 block mt-0.5">% Avg</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-6 leading-relaxed max-w-[200px] mx-auto">
+                Keep scoring above 80% to maintain your Honor Graduate badge.
+              </p>
+            </>
+          )}
         </div>
 
         {/* Weekly activity SVG bar chart */}
-        <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between">
+        <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between min-h-[280px]">
           <div>
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-1">Weekly Activity</h3>
+            <h3 className="text-sm font-semibold text-slate-400 mb-1">Weekly activity</h3>
             <p className="text-[10px] text-slate-500">Practice frequency logs per weekday</p>
           </div>
           
-          {/* Custom SVG Bar Chart */}
-          <div className="h-32 flex items-end justify-between gap-1 pt-4 px-2">
-            {weeklyActivity.map((act, idx) => {
-              const maxVal = Math.max(...weeklyActivity.map(w => w.count), 1);
-              const heightPercent = `${(act.count / maxVal) * 80 + 10}%`; // Minimum 10% height
-              return (
-                <div key={idx} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: heightPercent }}
-                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                      className="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg"
-                    />
+          {!hasActivity ? (
+            <div className="flex-1 flex items-center justify-center text-center py-6">
+              <p className="text-xs text-slate-500 max-w-[200px] leading-relaxed">
+                No activity this week. Start practicing to see your progress.
+              </p>
+            </div>
+          ) : (
+            /* Custom SVG Bar Chart */
+            <div className="h-32 flex items-end justify-between gap-1 pt-4 px-2">
+              {weeklyActivity.map((act, idx) => {
+                const maxVal = Math.max(...weeklyActivity.map(w => w.count), 1);
+                const heightPercent = `${(act.count / maxVal) * 80 + 10}%`; // Minimum 10% height
+                return (
+                  <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+                    <div className="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: heightPercent }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                        className="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg"
+                      />
+                    </div>
+                    <span className="text-[10px] font-medium text-slate-500">{act.day}</span>
                   </div>
-                  <span className="text-[10px] font-medium text-slate-500">{act.day}</span>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Badges Panel */}
         <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <h3 className="text-sm font-semibold text-slate-400 mb-1 flex items-center gap-1.5">
               <Award className="w-4.5 h-4.5 text-brand-secondary" />
               Achievements
             </h3>
@@ -499,7 +582,7 @@ const Dashboard = () => {
         
         {/* Recent Interviews list */}
         <div className="lg:col-span-2 p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
-          <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Recent Interviews</h3>
+          <h3 className="text-sm font-semibold text-slate-400">Recent interviews</h3>
           
           <div className="space-y-3">
             {recentInterviews.length > 0 ? (
@@ -535,8 +618,20 @@ const Dashboard = () => {
                 </div>
               ))
             ) : (
-              <div className="p-10 text-center rounded-2xl border border-dashed border-slate-800 text-slate-500 text-xs">
-                No past sessions recorded. Start a new voice interview room to begin.
+              <div className="flex flex-col items-center justify-center text-center p-8 sm:p-12 rounded-2xl border border-dashed border-slate-800 bg-slate-950/30">
+                <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 mb-4">
+                  <Mic className="w-6 h-6 text-brand-primary" />
+                </div>
+                <h4 className="text-base font-bold text-white mb-1">No interviews yet</h4>
+                <p className="text-xs text-slate-500 max-w-xs mb-6 leading-relaxed">
+                  Your completed sessions will appear here. Start practicing to get instant AI evaluation.
+                </p>
+                <Link
+                  to="/interview"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-xs sm:text-sm font-semibold text-white shadow-glow-cyan hover:opacity-90 transition-all flex items-center gap-1.5"
+                >
+                  Start your first mock interview →
+                </Link>
               </div>
             )}
           </div>
@@ -546,11 +641,13 @@ const Dashboard = () => {
         <div className="space-y-6">
           
           {/* Challenge Card */}
-          <div className="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between h-[210px] relative">
+          <div className="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between h-[225px] relative">
             <div>
               <div className="flex justify-between items-center">
-                <span className="text-[9px] font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-full uppercase">DAILY CHALLENGE</span>
-                <span className="text-[9px] text-slate-500 uppercase">{dailyChallenge.difficulty}</span>
+                <span className="text-[9px] font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-full">Daily challenge</span>
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${getDifficultyBadge(dailyChallenge.difficulty)}`}>
+                  {dailyChallenge.difficulty}
+                </span>
               </div>
               <h4 className="text-sm font-bold text-white mt-4">{dailyChallenge.title}</h4>
               <p className="text-[11px] text-slate-500 mt-2 line-clamp-3 leading-relaxed">
@@ -559,7 +656,7 @@ const Dashboard = () => {
             </div>
             <Link
               to={`/coding?challengeId=${dailyChallenge._id}`}
-              className="px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-900 text-xs font-semibold text-brand-primary flex items-center justify-center gap-1.5 hover:bg-slate-900 transition-colors mt-4"
+              className="w-full py-2.5 rounded-xl border border-brand-primary bg-transparent text-xs font-semibold text-brand-primary flex items-center justify-center gap-1.5 hover:bg-brand-primary/10 transition-all duration-200 mt-4"
             >
               <Play className="w-3.5 h-3.5" />
               Solve Challenge
@@ -567,40 +664,39 @@ const Dashboard = () => {
           </div>
 
           {/* Resume scan quick overview */}
-          <div className="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-brand-primary shrink-0">
-                <FileText className="w-5 h-5" />
+          <div className="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-brand-primary shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">ATS CV Score</h4>
+                  <p className="text-[9px] text-slate-500 mt-0.5 truncate max-w-[150px]">
+                    {recentResume ? recentResume.fileName : 'No CV Uploaded'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-xs font-bold text-white">ATS CV Score</h4>
-                <p className="text-[9px] text-slate-500 mt-0.5 truncate max-w-[120px]">
-                  {recentResume ? recentResume.fileName : 'No CV Uploaded'}
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              {recentResume ? (
-                <>
-                  <span className="text-xs font-extrabold text-brand-primary block">{recentResume.score}%</span>
-                  <Link to="/resume" className="text-[8px] text-slate-400 hover:underline">Re-upload</Link>
-                </>
-              ) : (
-                <Link
-                  to="/resume"
-                  className="text-[10px] text-brand-primary font-bold hover:underline"
-                >
-                  Upload
-                </Link>
+              {recentResume && (
+                <div className="text-right">
+                  <span className="text-xl font-extrabold text-brand-primary block">{recentResume.score}%</span>
+                </div>
               )}
             </div>
+            
+            <Link
+              to="/resume"
+              className="w-full py-2.5 rounded-xl border border-brand-primary bg-transparent text-xs font-semibold text-brand-primary flex items-center justify-center gap-1.5 hover:bg-brand-primary/10 transition-all duration-200"
+            >
+              {recentResume ? 'Re-upload Resume' : 'Upload your CV'}
+            </Link>
           </div>
 
           {/* Gamified Leaderboard Card */}
           <div className="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="text-[10px] font-bold text-slate-500 tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-brand-secondary animate-pulse" />
-              Candidate Leaderboard
+              Candidate leaderboard
             </h4>
             
             <div className="space-y-2.5 text-xs">
@@ -609,6 +705,7 @@ const Dashboard = () => {
                 { name: 'Jessica Chen', score: 91, isUser: false },
                 { name: user?.name || 'You', score: avgScore, isUser: true }
               ]
+                .filter(cand => !cand.isUser || stats.interviewsCompleted > 0)
                 .sort((a, b) => b.score - a.score)
                 .map((cand, idx) => {
                   const rank = idx + 1;
@@ -644,6 +741,13 @@ const Dashboard = () => {
                     </div>
                   );
                 })}
+              {stats.interviewsCompleted === 0 && (
+                <div className="p-3 rounded-xl border border-dashed border-slate-800 bg-slate-950/30 text-center">
+                  <p className="text-[11px] text-slate-500 italic">
+                    Complete an interview to join the leaderboard.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -666,9 +770,9 @@ const Dashboard = () => {
               <X className="w-4.5 h-4.5" />
             </button>
             
-            <h2 className="text-lg font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-1.5">
+            <h2 className="text-lg font-bold text-white mb-6 tracking-wider flex items-center gap-1.5">
               <Sliders className="w-5 h-5 text-brand-primary" />
-              Edit Profile Details
+              Edit profile details
             </h2>
             
             <form onSubmit={handleSaveProfile} className="space-y-4">
@@ -683,7 +787,7 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Profile Photo</label>
+                  <label className="text-[10px] text-slate-500 font-bold tracking-wider block mb-1">Profile photo</label>
                   <input 
                     type="file" 
                     accept="image/*"
@@ -703,7 +807,7 @@ const Dashboard = () => {
 
               {/* Name */}
               <div>
-                <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">Full Name</label>
+                <label className="text-[10px] text-slate-500 font-bold tracking-wider block mb-1.5">Full name</label>
                 <input 
                   type="text" 
                   value={editForm.name}
@@ -716,7 +820,7 @@ const Dashboard = () => {
 
               {/* Target Role */}
               <div>
-                <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">Target Role</label>
+                <label className="text-[10px] text-slate-500 font-bold tracking-wider block mb-1.5">Target role</label>
                 <input 
                   type="text" 
                   value={editForm.targetRole}
@@ -729,7 +833,7 @@ const Dashboard = () => {
 
               {/* Level dropdown */}
               <div>
-                <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">Difficulty Level</label>
+                <label className="text-[10px] text-slate-500 font-bold tracking-wider block mb-1.5">Difficulty level</label>
                 <select
                   value={editForm.experienceLevel}
                   onChange={(e) => setEditForm(prev => ({ ...prev, experienceLevel: e.target.value }))}

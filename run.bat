@@ -57,6 +57,6 @@ start "TalkPrep Frontend" cmd /k "cd frontend && powershell -ExecutionPolicy Byp
 
 :: Wait 3 seconds and open the browser
 timeout /t 3 /nobreak >nul
-start http://localhost:5173/auth
+start http://localhost:5173/
 
 exit

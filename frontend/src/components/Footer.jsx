@@ -16,7 +16,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-[#040810] border-t border-slate-900 text-slate-400 py-12 px-4 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-4 sm:px-6">
         
         {/* Brand Column */}
         <div className="space-y-4">
@@ -26,7 +26,7 @@ const Footer = () => {
             </div>
             <span className="text-lg font-bold text-white tracking-tight">TalkPrep.AI</span>
           </div>
-          <p className="text-sm text-slate-500 leading-relaxed">
+          <p className="text-sm text-slate-500 leading-relaxed h-auto overflow-visible whitespace-normal break-words">
             Elevate your confidence, master technical coding rounds, and scan your resume structure using advanced AI technologies.
           </p>
           <div className="flex items-center gap-4 text-slate-500 pt-1">

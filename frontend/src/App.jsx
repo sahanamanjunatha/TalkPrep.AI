@@ -42,9 +42,10 @@ const AppRoutes = () => {
     );
   }
 
-  // Redirect unauthenticated users to login page
-  if (!user && location.pathname !== '/auth') {
-    return <Navigate to="/auth" replace />;
+  // Redirect unauthenticated users to home page
+  const publicPaths = ['/', '/auth', '/about', '/contact'];
+  if (!user && !publicPaths.includes(location.pathname)) {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -70,6 +71,10 @@ const AppRoutes = () => {
 };
 
 function App() {
+  const location = useLocation();
+  const publicFooterPaths = ['/', '/about', '/contact'];
+  const showFooter = publicFooterPaths.includes(location.pathname);
+
   return (
     <ThemeProvider>
       <ToastProvider>
@@ -79,7 +84,7 @@ function App() {
             <main className="flex-1 w-full relative">
               <AppRoutes />
             </main>
-            <Footer />
+            {showFooter && <Footer />}
             <Chatbot />
           </div>
         </AuthProvider>

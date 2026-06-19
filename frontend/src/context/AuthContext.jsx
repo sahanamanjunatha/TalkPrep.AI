@@ -58,7 +58,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     // Frontend-only mock login for demo purposes
     const isMockAdmin = email === 'admin@talkprep.ai';
-    
+    const isMockUser = email === 'user@talkprep.ai';
+    const storedPassword = localStorage.getItem('mock_password_' + email);
+    const expectedPassword = storedPassword || 'password123';
+
+    if (password !== expectedPassword) {
+      return { success: false, message: 'Incorrect email or password. Please try again.' };
+    }
+
     // Extract name from personal email
     let displayName = 'John Candidate';
     if (email) {
@@ -112,6 +119,7 @@ export const AuthProvider = ({ children }) => {
 
     localStorage.setItem('token', 'mock-jwt-token-for-demo-purposes');
     localStorage.setItem('user', JSON.stringify(mockUserObj));
+    localStorage.setItem('mock_password_' + email, password);
     setToken('mock-jwt-token-for-demo-purposes');
     setUser(mockUserObj);
     return { success: true };

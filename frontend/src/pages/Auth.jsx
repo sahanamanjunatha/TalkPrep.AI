@@ -21,6 +21,7 @@ const Auth = () => {
   const [experienceLevel, setExperienceLevel] = useState('Intermediate');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
   // Password strength state variables
   const [strength, setStrength] = useState(0);
@@ -97,7 +98,7 @@ const Auth = () => {
         addToast('Welcome back! Signed in successfully.', 'success');
         navigate('/dashboard');
       } else {
-        addToast(res.message, 'error');
+        setLoginError(res.message || 'Incorrect email or password. Please try again.');
       }
     } else {
       const res = await register(name, email, password, targetRole, experienceLevel);
@@ -156,6 +157,7 @@ const Auth = () => {
                 onClick={() => {
                   setIsLogin(true);
                   setPassword('');
+                  setLoginError('');
                 }}
                 className={`flex-1 text-center py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   isLogin ? 'bg-slate-900 text-brand-primary shadow-sm' : 'text-slate-500 hover:text-slate-300'
@@ -168,6 +170,7 @@ const Auth = () => {
                 onClick={() => {
                   setIsLogin(false);
                   setPassword('');
+                  setLoginError('');
                 }}
                 className={`flex-1 text-center py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   !isLogin ? 'bg-slate-900 text-brand-primary shadow-sm' : 'text-slate-500 hover:text-slate-300'
@@ -206,7 +209,10 @@ const Auth = () => {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (loginError) setLoginError('');
+                  }}
                   placeholder="name@domain.com"
                   className="w-full bg-slate-950 border border-slate-900 rounded-2xl py-2.5 pl-10 pr-4 text-sm text-slate-200 outline-none focus:border-brand-primary transition-all"
                   required
@@ -234,12 +240,19 @@ const Auth = () => {
                   <input
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Min 6 characters"
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (loginError) setLoginError('');
+                    }}
+                    placeholder="••••••••"
                     className="w-full bg-slate-950 border border-slate-900 rounded-2xl py-2.5 pl-10 pr-4 text-sm text-slate-200 outline-none focus:border-brand-primary transition-all"
                     required
                   />
                 </div>
+                <p className="text-[12px] text-slate-500 mt-1 pl-1">Min 6 characters</p>
+                {isLogin && loginError && (
+                  <p className="text-[12px] text-rose-500 mt-1 pl-1 font-medium">{loginError}</p>
+                )}
 
                 {/* Password strength visualizer (Signup only) */}
                 {!isLogin && password && (

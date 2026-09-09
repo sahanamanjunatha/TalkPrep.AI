@@ -1,0 +1,3174 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TalkPrep.AI - Interactive Prototype Preview</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              bg: '#080c14',
+              card: 'rgba(17, 24, 39, 0.7)',
+              border: 'rgba(255, 255, 255, 0.08)',
+              text: '#f3f4f6'
+            },
+            brand: {
+              primary: '#06b6d4',
+              secondary: '#8b5cf6',
+              accent: '#ec4899',
+            }
+          },
+          fontFamily: {
+            sans: ['Outfit', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #080c14;
+      background-size: 40px 40px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .glass-nav {
+      background: rgba(8, 12, 20, 0.75);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    /* Printing stylesheet for resume builder */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-sheet-area, #print-sheet-area * {
+        visibility: visible;
+      }
+      #print-sheet-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="text-slate-100 antialiased font-sans min-h-screen flex flex-col justify-between">
+
+  <!-- Header Navigation -->
+  <header class="sticky top-0 z-50 glass-nav print:hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="#" onclick="showPage('home')" class="flex items-center gap-2 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center shadow-lg">
+            <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+            TalkPrep<span class="text-brand-primary">.AI</span>
+          </span>
+        </a>
+
+        <!-- Navigation routes tabs -->
+        <div class="hidden md:flex items-center gap-6" id="nav-routes-container">
+          <button onclick="showPage('home')" class="nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-brand-primary" id="btn-home">Home</button>
+          <button onclick="showPage('about')" class="nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-slate-400" id="btn-about">About</button>
+          <button onclick="showPage('contact')" class="nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-slate-400" id="btn-contact">Contact</button>
+          
+          <!-- Conditional Logged In links (rendered dynamically via javascript) -->
+          <div id="logged-in-nav-items" class="hidden flex items-center gap-6">
+            <div class="h-4 w-px bg-slate-800 my-auto ml-2"></div>
+            <button onclick="showPage('dashboard')" class="nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-slate-400" id="btn-dashboard">Dashboard</button>
+            <button onclick="showPage('interview')" class="candidate-link nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-slate-400" id="btn-interview">Mock Room</button>
+            <button onclick="showPage('coding')" class="candidate-link nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-slate-400" id="btn-coding">Coding IDE</button>
+            <button onclick="showPage('resume')" class="candidate-link nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-slate-400" id="btn-resume">ATS CV Scan</button>
+            <button onclick="showPage('admin')" class="admin-link hidden nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-slate-400 flex items-center gap-1.5" id="btn-admin">
+              <i data-lucide="shield" class="w-3.5 h-3.5 text-brand-secondary"></i>
+              Admin Panel
+            </button>
+            <button onclick="showPage('settings')" class="nav-btn text-sm font-medium transition-colors hover:text-brand-primary text-slate-400 flex items-center gap-1.5" id="btn-settings">
+              <div class="w-7 h-7 rounded-md bg-slate-800 overflow-hidden flex items-center justify-center shrink-0" id="nav-avatar-mini-box">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>
+              </div>
+              Profile
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="showPage('auth')" id="nav-signin-btn" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-xs font-semibold text-white shadow-lg">Sign In</button>
+          <div id="nav-user-badge" class="hidden flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-slate-850 bg-slate-900/30 text-xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="nav-user-name" class="font-bold text-white max-w-[80px] truncate">John</span>
+            <button onclick="mockLogout()" class="text-rose-400 hover:text-rose-300 ml-1.5" title="Log Out"><i data-lucide="log-out" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Pages Content Area -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- PAGE 1: HOME -->
+    <div id="page-home" class="page-content space-y-16">
+      <div class="text-center space-y-6 pt-10">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          AI RECRUITER EMULATION SYSTEM
+        </span>
+        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
+          Ace Recruiter Rounds with <span class="bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent">TalkPrep.AI</span>
+        </h1>
+        <p class="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto">
+          Host audio mock dialogues, debug programming algorithms, and scan CV keywords instantly under a dark glassmorphic prototype shell.
+        </p>
+        <div class="flex items-center justify-center gap-4 pt-4">
+          <button onclick="showPage('auth')" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary text-sm font-semibold text-white shadow-lg flex items-center gap-2 hover:opacity-90">
+            Sign In & Practice
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+          <button onclick="showPage('about')" class="px-8 py-3.5 rounded-2xl border border-slate-800 bg-slate-900/40 text-sm font-semibold text-slate-300 hover:bg-slate-900">
+            Learn More
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: ABOUT -->
+    <div id="page-about" class="page-content hidden space-y-8 max-w-3xl mx-auto animate-fade-in">
+      <div class="text-center space-y-3">
+        <h1 class="text-3xl font-extrabold">About Our Vision</h1>
+        <p class="text-slate-400 text-sm">Conditioning technical candidate confidence through dynamic mock practices.</p>
+      </div>
+      <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-4 leading-relaxed text-sm text-slate-300">
+        <p>TalkPrep.AI was constructed to resolve presentation blocks. Standard interviews feel challenging not because of syntax, but because of high-pressure verbal communication. Our audio simulators and visual progress charts establish a safe environment to practice and improve.</p>
+      </div>
+    </div>
+
+    <!-- PAGE 3: CONTACT -->
+    <div id="page-contact" class="page-content hidden space-y-8 max-w-xl mx-auto animate-fade-in">
+      <div class="text-center space-y-3">
+        <h1 class="text-3xl font-extrabold">Contact Support</h1>
+        <p class="text-slate-400 text-sm">Send us questions about platform parameters.</p>
+      </div>
+      <form onsubmit="alert('Mock Message Sent!'); event.preventDefault();" class="glass-panel border border-slate-900 p-6 rounded-3xl space-y-4">
+        <div class="space-y-1.5">
+          <label class="text-xs text-slate-400 font-bold">Email Address</label>
+          <input type="email" placeholder="name@domain.com" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-xs text-white" required>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs text-slate-400 font-bold">Ticket Message</label>
+          <textarea placeholder="Describe your query..." class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-xs text-white h-24" required></textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-primary text-slate-950 font-semibold text-xs uppercase tracking-wider">
+          Submit Message
+        </button>
+      </form>
+    </div>
+
+    <!-- PAGE 4: LOGIN / REGISTER -->
+    <div id="page-auth" class="page-content hidden space-y-6 max-w-md mx-auto animate-fade-in">
+      <div class="text-center space-y-2">
+        <h2 id="auth-title" class="text-2xl font-extrabold">Sign In Account</h2>
+        <p id="auth-subtitle" class="text-xs text-slate-500">Sign in to access your platform dashboard</p>
+      </div>
+
+      <!-- Auth card -->
+      <div class="glass-panel border border-slate-900 p-6 rounded-3xl space-y-4">
+        <!-- Tabs switches -->
+        <div class="flex bg-slate-950/80 border border-slate-900 rounded-2xl p-1 mb-2">
+          <button
+            type="button"
+            onclick="setAuthMode(true)"
+            id="tab-signin"
+            class="flex-grow text-center py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer bg-slate-900 text-brand-primary shadow-sm"
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onclick="setAuthMode(false)"
+            id="tab-signup"
+            class="flex-grow text-center py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-slate-500 hover:text-slate-300"
+          >
+            Register
+          </button>
+        </div>
+
+        <!-- Name Field (Register only) -->
+        <div id="auth-name-field" class="space-y-1.5 text-xs hidden">
+          <label class="font-semibold text-slate-400">Full Name</label>
+          <input type="text" id="auth-name-input" placeholder="Your name" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white outline-none focus:border-brand-primary">
+        </div>
+
+        <!-- Email field -->
+        <div class="space-y-1.5 text-xs">
+          <label class="font-semibold text-slate-400">Email Address</label>
+          <input type="email" id="auth-email-input" placeholder="name@domain.com" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white outline-none focus:border-brand-primary">
+        </div>
+
+        <!-- Password field -->
+        <div class="space-y-1.5 text-xs">
+          <label class="font-semibold text-slate-400">Password</label>
+          <input type="password" id="auth-pwd-input" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white outline-none focus:border-brand-primary">
+        </div>
+
+        <!-- Custom inputs (Register only) -->
+        <div id="auth-register-details" class="grid grid-cols-2 gap-4 hidden">
+          <div class="space-y-1.5 text-xs">
+            <label class="font-semibold text-slate-400">Target Role</label>
+            <input type="text" id="auth-role-input" value="Software Engineer" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white outline-none focus:border-brand-primary">
+          </div>
+          <div class="space-y-1.5 text-xs">
+            <label class="font-semibold text-slate-400">Level</label>
+            <select id="auth-level-input" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2 px-3 text-slate-300">
+              <option selected>Intermediate</option>
+              <option>Beginner</option>
+              <option>Advanced</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-slate-950 font-bold text-xs uppercase tracking-wider mt-4">
+          Authenticate
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE 5: DASHBOARD -->
+    <div id="page-dashboard" class="page-content hidden space-y-8 animate-fade-in">
+      
+      <!-- Personalized Welcome Banner -->
+      <div class="relative p-6 sm:p-8 rounded-3xl border border-slate-900 bg-slate-900/10 overflow-hidden shadow-2xl backdrop-blur-md">
+        <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-brand-primary/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 -bottom-10 w-44 h-44 rounded-full bg-brand-secondary/10 blur-3xl pointer-events-none"></div>
+        
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+          <div class="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+            <!-- Avatar container with Edit overlay -->
+            <div class="relative group shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-slate-950 border-2 border-slate-800 p-1 shadow-cyan-500/20 overflow-hidden flex items-center justify-center">
+              <img id="dash-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=TalkPrep" alt="User Avatar" class="w-full h-full object-contain rounded-2xl bg-slate-900">
+              <button onclick="openEditProfileModal()" class="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-semibold gap-1 rounded-2xl cursor-pointer">
+                <i data-lucide="camera" class="w-4 h-4"></i>
+                Change
+              </button>
+            </div>
+            
+            <div class="space-y-1.5">
+              <div class="flex flex-col sm:flex-row items-center gap-2">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight" id="dash-welcome-text">
+                  Welcome back, Developer!
+                </h1>
+                <span class="text-[10px] bg-brand-primary/15 text-brand-primary border border-brand-primary/35 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                  Candidate
+                </span>
+              </div>
+              <p class="text-sm text-slate-400" id="dash-target-role-text">
+                Target Role: Software Engineer | Level: Intermediate
+              </p>
+              <p class="text-xs text-slate-500 max-w-md">
+                "Consistency is key. Sharpen your interview answers, build a stunning ATS CV, and practice your pitch today."
+              </p>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap justify-center gap-3 shrink-0">
+            <button onclick="openEditProfileModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 text-xs sm:text-sm font-semibold text-slate-300 flex items-center gap-1.5 hover:bg-slate-900 transition-colors shadow-lg cursor-pointer">
+              <i data-lucide="edit-2" class="w-4 h-4"></i>
+              Edit Profile
+            </button>
+            <button onclick="showPage('interview')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-xs sm:text-sm font-semibold text-white shadow-lg flex items-center gap-1.5 hover:opacity-90">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              Start Voice AI Interview
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- What You Will Learn Section -->
+      <div class="p-6 sm:p-8 rounded-3xl border border-slate-900 bg-slate-900/10 relative overflow-hidden">
+        <div class="flex items-center gap-2 mb-6">
+          <i data-lucide="book-open" class="w-5 h-5 text-brand-primary"></i>
+          <h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase">What You Will Learn</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+            <div class="p-2 rounded-lg shrink-0 text-pink-400 bg-pink-500/10"><i data-lucide="award" class="w-4 h-4"></i></div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">HR Interview Skills</h4>
+              <p class="text-[10px] text-slate-500 mt-1 leading-normal">Master common behavior questions and cultural fit frameworks.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+            <div class="p-2 rounded-lg shrink-0 text-indigo-400 bg-indigo-500/10"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Communication Skills</h4>
+              <p class="text-[10px] text-slate-500 mt-1 leading-normal">Refine vocal clarity, pacing, and vocabulary for structured delivery.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+            <div class="p-2 rounded-lg shrink-0 text-blue-400 bg-blue-500/10"><i data-lucide="terminal" class="w-4 h-4"></i></div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Technical Problem Solving</h4>
+              <p class="text-[10px] text-slate-500 mt-1 leading-normal">Break down complex algorithms and talk through your logical steps.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+            <div class="p-2 rounded-lg shrink-0 text-amber-400 bg-amber-500/10"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Resume Building</h4>
+              <p class="text-[10px] text-slate-500 mt-1 leading-normal">Design ATS-optimized, professional-grade single-page layouts.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+            <div class="p-2 rounded-lg shrink-0 text-emerald-400 bg-emerald-500/10"><i data-lucide="terminal" class="w-4 h-4"></i></div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Coding Interview Prep</h4>
+              <p class="text-[10px] text-slate-500 mt-1 leading-normal">Practice mock IDE challenges with real-time feedback hints.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+            <div class="p-2 rounded-lg shrink-0 text-violet-400 bg-violet-500/10"><i data-lucide="sliders" class="w-4 h-4"></i></div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Aptitude Practice</h4>
+              <p class="text-[10px] text-slate-500 mt-1 leading-normal">Sharpen logical reasoning, mathematical concepts, and timers.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+            <div class="p-2 rounded-lg shrink-0 text-yellow-400 bg-yellow-500/10"><i data-lucide="zap" class="w-4 h-4"></i></div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Confidence Improvement</h4>
+              <p class="text-[10px] text-slate-500 mt-1 leading-normal">Overcome stage fright with repetitive interactive mock rounds.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 flex items-start gap-3.5 hover:border-slate-800 transition-colors">
+            <div class="p-2 rounded-lg shrink-0 text-cyan-400 bg-cyan-500/10"><i data-lucide="graduation-cap" class="w-4 h-4"></i></div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Real Interview Experience</h4>
+              <p class="text-[10px] text-slate-500 mt-1 leading-normal">Simulate high-pressure whiteboard sessions and board panel loops.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Shortcut Cards Grid -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-5 h-5 text-brand-secondary"></i>
+          <h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase">Interactive Practice Hub</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+          
+          <div class="p-5 rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 text-cyan-400 flex flex-col justify-between h-[200px] relative hover:shadow-lg transition-all duration-300">
+            <div>
+              <div class="flex justify-between items-start">
+                <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800 text-white shrink-0">
+                  <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[8px] font-extrabold bg-slate-950/60 border border-slate-850 px-2 py-0.5 rounded-full uppercase">Voice Active</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mt-4">Virtual Interview</h3>
+              <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed line-clamp-3">Speak to our conversational AI interviewer in real-time. Practice technical or behavior rounds.</p>
+            </div>
+            <button onclick="showPage('interview')" class="text-[10px] font-bold text-white hover:underline flex items-center gap-1 mt-3">Launch Room <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+          </div>
+
+          <div class="p-5 rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-pink-500/5 text-purple-400 flex flex-col justify-between h-[200px] relative hover:shadow-lg transition-all duration-300">
+            <div>
+              <div class="flex justify-between items-start">
+                <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800 text-white shrink-0">
+                  <i data-lucide="file-text" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[8px] font-extrabold bg-slate-950/60 border border-slate-850 px-2 py-0.5 rounded-full uppercase">NEW</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mt-4">Build Resume</h3>
+              <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed line-clamp-3">Craft a highly professional, single-sheet resume using templates. Export directly to print PDF.</p>
+            </div>
+            <button onclick="showPage('resume-builder')" class="text-[10px] font-bold text-white hover:underline flex items-center gap-1 mt-3">Launch Room <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+          </div>
+
+          <div class="p-5 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5 text-amber-400 flex flex-col justify-between h-[200px] relative hover:shadow-lg transition-all duration-300">
+            <div>
+              <div class="flex justify-between items-start">
+                <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800 text-white shrink-0">
+                  <i data-lucide="eye" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[8px] font-extrabold bg-slate-950/60 border border-slate-850 px-2 py-0.5 rounded-full uppercase">ATS Scanner</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mt-4">Analyze Resume</h3>
+              <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed line-clamp-3">Upload your CV to run an ATS scan. Discover keyword gaps and score metrics.</p>
+            </div>
+            <button onclick="showPage('resume')" class="text-[10px] font-bold text-white hover:underline flex items-center gap-1 mt-3">Launch Room <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+          </div>
+
+          <div class="p-5 rounded-2xl border border-rose-500/20 bg-gradient-to-br from-rose-500/10 to-red-500/5 text-rose-400 flex flex-col justify-between h-[200px] relative hover:shadow-lg transition-all duration-300">
+            <div>
+              <div class="flex justify-between items-start">
+                <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800 text-white shrink-0">
+                  <i data-lucide="help-circle" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[8px] font-extrabold bg-slate-950/60 border border-slate-850 px-2 py-0.5 rounded-full uppercase">NEW - Timed</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mt-4">Quiz Arena</h3>
+              <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed line-clamp-3">Challenge yourself with timed multiple-choice pools. Track aptitude and technical skills.</p>
+            </div>
+            <button onclick="showPage('quiz')" class="text-[10px] font-bold text-white hover:underline flex items-center gap-1 mt-3">Launch Room <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+          </div>
+
+          <div class="p-5 rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 text-emerald-400 flex flex-col justify-between h-[200px] relative hover:shadow-lg transition-all duration-300">
+            <div>
+              <div class="flex justify-between items-start">
+                <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800 text-white shrink-0">
+                  <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[8px] font-extrabold bg-slate-950/60 border border-slate-850 px-2 py-0.5 rounded-full uppercase">NEW - AI</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mt-4">Domain Practice</h3>
+              <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed line-clamp-3">Test your answers across 8 tech & behavioral domains evaluated instantly with tips.</p>
+            </div>
+            <button onclick="showPage('domain-practice')" class="text-[10px] font-bold text-white hover:underline flex items-center gap-1 mt-3">Launch Room <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Stats values -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="p-4 rounded-xl border border-slate-900 bg-slate-900/10 flex items-center gap-3">
+          <i data-lucide="check-circle" class="w-5 h-5 text-brand-primary"></i>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase block">Interviews</span>
+            <span class="text-lg font-bold" id="dash-interviews-count">0 Sessions</span>
+          </div>
+        </div>
+        <div class="p-4 rounded-xl border border-slate-900 bg-slate-900/10 flex items-center gap-3">
+          <i data-lucide="terminal" class="w-5 h-5 text-brand-secondary"></i>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase block">Algorithms</span>
+            <span class="text-lg font-bold" id="dash-challenges-count">0 Solved</span>
+          </div>
+        </div>
+        <div class="p-4 rounded-xl border border-slate-900 bg-slate-900/10 flex items-center gap-3">
+          <i data-lucide="zap" class="w-5 h-5 text-yellow-500"></i>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase block">Streak</span>
+            <span class="text-lg font-bold" id="dash-streak-count">1 Day</span>
+          </div>
+        </div>
+        <div class="p-4 rounded-xl border border-slate-900 bg-slate-900/10 flex items-center gap-3">
+          <i data-lucide="award" class="w-5 h-5 text-emerald-400"></i>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase block">Average</span>
+            <span class="text-lg font-bold" id="dash-avg-score">0% Grade</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Performance and badges -->
+        <div class="space-y-6">
+          <!-- Leaderboard widget -->
+          <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-4">
+            <h3 class="font-bold text-sm uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+              <i data-lucide="trophy" class="w-4.5 h-4.5 text-yellow-500 animate-pulse"></i>
+              Candidate Leaderboard
+            </h3>
+            <div class="space-y-2.5 text-xs" id="dash-leaderboard-container">
+              <div class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-xl border border-slate-900">
+                <span class="font-semibold text-slate-300">#1 Alex Rivera</span>
+                <span class="font-extrabold text-brand-primary">94%</span>
+              </div>
+              <div class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-xl border border-slate-900">
+                <span class="font-semibold text-slate-300">#2 Jessica Chen</span>
+                <span class="font-extrabold text-brand-primary">91%</span>
+              </div>
+              <div class="flex justify-between items-center bg-brand-primary/5 p-2.5 rounded-xl border border-brand-primary/20">
+                <span class="font-bold text-white" id="leaderboard-user-name">John Candidate</span>
+                <span class="font-extrabold text-brand-primary" id="leaderboard-user-score">78%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Badges Panel -->
+          <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-4">
+            <h3 class="font-bold text-sm uppercase text-slate-400 tracking-wider">Badges Unlocked</h3>
+            <div class="grid grid-cols-2 gap-2" id="dash-badges-container">
+              <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-900 text-center">
+                <i data-lucide="award" class="w-5 h-5 text-brand-primary mx-auto mb-1"></i>
+                <span class="text-[8px] font-bold block truncate">Starter</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-900 text-center">
+                <i data-lucide="terminal" class="w-5 h-5 text-brand-secondary mx-auto mb-1"></i>
+                <span class="text-[8px] font-bold block truncate">Algorithmist</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Activity -->
+        <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-1">Weekly Activity</h3>
+            <p class="text-[10px] text-slate-500">Practice frequency logs per weekday</p>
+          </div>
+          
+          <div class="h-32 flex items-end justify-between gap-1 pt-4 px-2" id="dash-weekly-chart">
+            <div class="flex-grow flex flex-col items-center gap-2">
+              <div class="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+                <div class="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg" style="height: 10%"></div>
+              </div>
+              <span class="text-[10px] font-medium text-slate-500">Mon</span>
+            </div>
+            <div class="flex-grow flex flex-col items-center gap-2">
+              <div class="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+                <div class="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg" style="height: 10%"></div>
+              </div>
+              <span class="text-[10px] font-medium text-slate-500">Tue</span>
+            </div>
+            <div class="flex-grow flex flex-col items-center gap-2">
+              <div class="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+                <div class="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg" style="height: 10%"></div>
+              </div>
+              <span class="text-[10px] font-medium text-slate-500">Wed</span>
+            </div>
+            <div class="flex-grow flex flex-col items-center gap-2">
+              <div class="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+                <div class="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg" style="height: 70%"></div>
+              </div>
+              <span class="text-[10px] font-medium text-slate-500">Thu</span>
+            </div>
+            <div class="flex-grow flex flex-col items-center gap-2">
+              <div class="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+                <div class="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg" style="height: 10%"></div>
+              </div>
+              <span class="text-[10px] font-medium text-slate-500">Fri</span>
+            </div>
+            <div class="flex-grow flex flex-col items-center gap-2">
+              <div class="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+                <div class="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg" style="height: 10%"></div>
+              </div>
+              <span class="text-[10px] font-medium text-slate-500">Sat</span>
+            </div>
+            <div class="flex-grow flex flex-col items-center gap-2">
+              <div class="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+                <div class="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg" style="height: 10%"></div>
+              </div>
+              <span class="text-[10px] font-medium text-slate-500">Sun</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAGE 6: INTERVIEW ROOM -->
+    <div id="page-interview" class="page-content hidden space-y-8 animate-fade-in">
+      
+      <!-- VIEW 1: SETUP FORM -->
+      <div id="interview-setup-view" class="space-y-6">
+        <div class="max-w-2xl mx-auto border border-slate-900 bg-slate-900/10 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl relative">
+          
+          <!-- Header -->
+          <div class="text-center space-y-2">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white flex items-center justify-center gap-2">
+              <i data-lucide="sparkles" class="w-6 h-6 text-brand-primary animate-pulse"></i>
+              AI Virtual Mock Interview Setup
+            </h1>
+            <p class="text-xs text-slate-500">Configure parameters to customize the AI reviewer's evaluation algorithm.</p>
+          </div>
+
+          <div class="h-px bg-slate-900"></div>
+
+          <div class="space-y-5">
+            <!-- Job Title / Role -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="briefcase" class="w-4 h-4 text-slate-400"></i>
+                  <label class="text-xs font-semibold text-slate-400">Job Title / Role</label>
+                  <span class="text-[9px] bg-brand-primary/10 text-brand-primary px-1.5 py-0.5 rounded font-bold uppercase">Required</span>
+                </div>
+                <button type="button" class="text-slate-500 hover:text-slate-300" title="Specify the job role you are interviewing for.">
+                  <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <input type="text" id="setup-job-title" placeholder="e.g., Software Engineer, Product Manager..." class="w-full bg-slate-950 border border-slate-900 rounded-2xl py-2.5 px-4 text-sm outline-none focus:border-brand-primary text-slate-200">
+              
+              <!-- Popular Options Capsules -->
+              <div class="flex flex-wrap gap-2 pt-1 text-[10px] text-slate-400">
+                <span class="text-slate-500 my-auto">Popular:</span>
+                <button type="button" onclick="selectSetupRole('Frontend Engineer')" class="px-2.5 py-1 rounded-full border border-slate-900 bg-slate-950 hover:border-slate-800 hover:text-white transition-colors cursor-pointer">Frontend Engineer</button>
+                <button type="button" onclick="selectSetupRole('Product Manager')" class="px-2.5 py-1 rounded-full border border-slate-900 bg-slate-950 hover:border-slate-800 hover:text-white transition-colors cursor-pointer">Product Manager</button>
+                <button type="button" onclick="selectSetupRole('Data Analyst')" class="px-2.5 py-1 rounded-full border border-slate-900 bg-slate-950 hover:border-slate-800 hover:text-white transition-colors cursor-pointer">Data Analyst</button>
+              </div>
+            </div>
+
+            <!-- Job Description -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i>
+                  <label class="text-xs font-semibold text-slate-400">Job Description</label>
+                  <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold uppercase">Optional</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="fillMockJobDescription()" class="px-2 py-0.5 rounded border border-slate-850 hover:border-slate-700 bg-slate-950 text-[10px] text-slate-400 hover:text-white flex items-center gap-1 transition-colors cursor-pointer">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Fill from Job Board
+                  </button>
+                  <button type="button" class="text-slate-500 hover:text-slate-300" title="Paste the job description to tailor the interview questions.">
+                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+              <textarea id="setup-job-desc" placeholder="Paste the full job description or posting here..." class="w-full h-24 bg-slate-950 border border-slate-900 rounded-2xl p-3 text-xs text-slate-200 outline-none focus:border-brand-primary resize-none leading-relaxed" oninput="updateCharCount(this)"></textarea>
+              <div class="flex justify-between text-[9px] text-slate-500">
+                <span id="char-counter">0 / 5000 characters</span>
+                <span>Paste to auto-tailor questions</span>
+              </div>
+            </div>
+
+            <!-- Resume -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="paperclip" class="w-4 h-4 text-slate-400"></i>
+                  <label class="text-xs font-semibold text-slate-400">Resume</label>
+                  <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold uppercase">Optional</span>
+                </div>
+                <button type="button" class="text-slate-500 hover:text-slate-300" title="Upload your resume to align interview questions with your background.">
+                  <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="border border-dashed border-slate-800 hover:border-slate-700 bg-slate-950 rounded-2xl p-4 text-center cursor-pointer transition-colors relative flex items-center justify-between" onclick="triggerResumeUpload()">
+                <div class="flex items-center gap-3 text-left">
+                  <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-850 flex items-center justify-center text-brand-primary shrink-0" id="resume-icon-box">
+                    <i data-lucide="file-up" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-slate-300 block" id="resume-status-text">Select or Upload Resume</span>
+                    <span class="text-[9px] text-slate-500 block mt-0.5">Support PDF, DOCX up to 10MB</span>
+                  </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-600"></i>
+                <input type="file" id="setup-resume-file" accept=".pdf,.doc,.docx" class="hidden" onchange="handleSetupResumeChange(event)">
+              </div>
+            </div>
+
+            <!-- Language -->
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="languages" class="w-4 h-4 text-slate-400"></i>
+                <label class="text-xs font-semibold text-slate-400">Language</label>
+                <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold uppercase">Supported</span>
+              </div>
+              <select id="setup-language" class="w-full bg-slate-950 border border-slate-900 rounded-2xl py-2.5 px-4 text-xs outline-none focus:border-brand-primary text-slate-300 cursor-pointer">
+                <option value="English" selected>English</option>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+              </select>
+              <span class="text-[9px] text-slate-500 block">Choose any supported language. Your interview questions and transcription will use this selection.</span>
+            </div>
+
+            <!-- Side-by-side: Experience Level & Number of Questions -->
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Experience Level -->
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                  <label class="text-xs font-semibold text-slate-400">Experience Level</label>
+                  <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold uppercase">Optional</span>
+                </div>
+                <select id="setup-exp-level" class="w-full bg-slate-950 border border-slate-900 rounded-2xl py-2.5 px-3 text-xs outline-none focus:border-brand-primary text-slate-300 cursor-pointer">
+                  <option value="Entry Level">Entry Level (0-2 years)</option>
+                  <option value="Mid Level" selected>Mid Level (2-5 years)</option>
+                  <option value="Senior Level">Senior Level (5+ years)</option>
+                </select>
+              </div>
+
+              <!-- Number of Questions -->
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="message-square" class="w-4 h-4 text-slate-400"></i>
+                  <label class="text-xs font-semibold text-slate-400">Number of questions</label>
+                </div>
+                <select id="setup-num-questions" class="w-full bg-slate-950 border border-slate-900 rounded-2xl py-2.5 px-3 text-xs outline-none focus:border-brand-primary text-slate-300 cursor-pointer">
+                  <option value="3">3 questions (~7 min)</option>
+                  <option value="5" selected>5 questions (~12 min)</option>
+                  <option value="10">10 questions (~25 min)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Advanced Customization Accordion -->
+            <div class="border border-slate-900 bg-slate-950/40 rounded-2xl overflow-hidden">
+              <button type="button" onclick="toggleSetupAccordion()" class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-900/40 transition-colors cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="sliders-horizontal" class="w-4.5 h-4.5 text-brand-primary"></i>
+                  <div>
+                    <h4 class="text-xs font-bold text-white">Advanced Customization</h4>
+                    <p class="text-[9px] text-slate-500 mt-0.5">Tune industry, focus skills, and exact practice questions.</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[9px] text-slate-400 border border-slate-800 bg-slate-950 px-2 py-0.5 rounded font-semibold" id="accordion-badge">Basic setup</span>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 transition-transform duration-200" id="accordion-arrow"></i>
+                </div>
+              </button>
+              
+              <div id="setup-accordion-content" class="hidden p-4 border-t border-slate-900 space-y-4 bg-slate-950/80">
+                <div class="grid grid-cols-2 gap-4">
+                  <!-- Category Type -->
+                  <div class="space-y-1.5">
+                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Session Category</label>
+                    <select id="setup-category" class="w-full bg-slate-950 border border-slate-900 rounded-xl py-2 px-3 text-xs text-slate-300">
+                      <option value="Technical" selected>Technical Interview</option>
+                      <option value="HR">HR / Behavioral</option>
+                      <option value="System Design">System Design</option>
+                    </select>
+                  </div>
+                  <!-- Difficulty Grade -->
+                  <div class="space-y-1.5">
+                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Difficulty Grade</label>
+                    <select id="setup-difficulty" class="w-full bg-slate-950 border border-slate-900 rounded-xl py-2 px-3 text-xs text-slate-300">
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate" selected>Intermediate</option>
+                      <option value="Advanced">Advanced</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Custom Focus Areas (Keywords)</label>
+                  <input type="text" id="setup-focus-keywords" placeholder="e.g., Redux, System Scaling, SQL Queries..." class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2 px-3 text-xs text-white outline-none focus:border-brand-primary">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <button onclick="startMockInterview()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary text-sm font-semibold text-slate-950 shadow-glow-cyan flex items-center justify-center gap-2 hover:opacity-90 transition-opacity mt-6 cursor-pointer">
+            <i data-lucide="play" class="w-4.5 h-4.5"></i>
+            Start Interview
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 2: ACTIVE INTERVIEW -->
+      <div id="interview-active-view" class="hidden space-y-8">
+        <div class="border-b border-slate-900 pb-4 flex justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-extrabold" id="active-interview-role-title">Virtual Speech Mock</h1>
+            <p class="text-xs text-slate-500 mt-1">Dynamic audio verification simulator.</p>
+          </div>
+          <button onclick="speakMockQuestion()" class="px-4 py-2 rounded-xl bg-brand-primary text-slate-950 font-semibold text-xs flex items-center gap-1.5 shadow-lg">
+            <i data-lucide="volume-2" class="w-4 h-4"></i>
+            Play Voice Prompt
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2 space-y-6">
+            <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-3">
+              <span class="text-[9px] font-bold uppercase text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full" id="active-question-badge">QUESTION 1 OF 5</span>
+              <h3 class="text-lg font-bold text-white leading-relaxed" id="mock-question-field">
+                "What is the event loop in JavaScript, and how does it handle asynchronous operations?"
+              </h3>
+            </div>
+
+            <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-slate-500 uppercase font-bold">Answer response</span>
+                <span id="recording-pulse" class="hidden text-brand-primary font-mono text-[9px] flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-brand-primary animate-ping"></span>
+                  RECORDING LIVE SOUND
+                </span>
+              </div>
+              <textarea id="mock-answer-textarea" placeholder="Speak or write your answer here..." class="w-full bg-slate-950 border border-slate-900 rounded-xl p-4 text-xs sm:text-sm text-slate-200 h-36 outline-none focus:border-brand-primary resize-none leading-relaxed"></textarea>
+              <div class="flex justify-between items-center">
+                <button onclick="toggleMockRecording()" id="btn-rec" class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-900 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+                  <i data-lucide="mic" class="w-5 h-5"></i>
+                </button>
+                <div class="flex gap-2">
+                  <button onclick="resetMockInterview()" class="px-4 py-2 rounded-xl border border-slate-800 bg-slate-950 text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
+                    Quit Session
+                  </button>
+                  <button onclick="submitMockAnswer()" class="px-5 py-2 rounded-xl bg-brand-primary text-slate-950 font-semibold text-xs cursor-pointer">
+                    Submit Answer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div id="cam-test-view" class="aspect-video rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-center items-center relative overflow-hidden">
+              <i data-lucide="video-off" class="w-8 h-8 text-slate-600 mb-2"></i>
+              <span class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Webcam Mock Feed</span>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-900 bg-slate-900/10 text-center">
+              <span class="text-[10px] text-slate-500">Enable local camera in Settings for diagnostic validation.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live grading modal display -->
+        <div id="evaluation-card" class="hidden max-w-lg mx-auto p-6 rounded-2xl border border-brand-primary/20 bg-brand-primary/5 space-y-4">
+          <div class="flex justify-between items-center pb-2 border-b border-brand-primary/10">
+            <h4 class="font-bold text-xs uppercase text-brand-primary tracking-wider">AI EVALUATION SCORECARD</h4>
+            <span class="text-xl font-extrabold text-white" id="eval-score">85%</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed font-medium" id="eval-feedback">
+            Nice work. You correctly mentioned the Call Stack and Microtask Queue keywords.
+          </p>
+          <div class="grid grid-cols-2 gap-4 text-[10px]">
+            <div>
+              <span class="font-bold text-white uppercase block">Strengths</span>
+              <ul class="list-disc pl-3 text-slate-400 mt-1 leading-normal" id="eval-strengths">
+                <li>Detailed Event Loop ticks</li>
+              </ul>
+            </div>
+            <div>
+              <span class="font-bold text-white uppercase block">Weaknesses</span>
+              <ul class="list-disc pl-3 text-slate-400 mt-1 leading-normal" id="eval-weaknesses">
+                <li>Lacks callbacks explanation</li>
+              </ul>
+            </div>
+          </div>
+          <div class="pt-4 border-t border-slate-900 flex justify-end">
+            <button onclick="nextMockQuestion()" id="btn-next-mock" class="px-4 py-2 rounded-xl bg-brand-primary text-slate-950 font-bold text-xs cursor-pointer">
+              Next Question
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 7: CODING ROUND -->
+    <div id="page-coding" class="page-content hidden space-y-8 animate-fade-in">
+      <div class="border-b border-slate-900 pb-4 flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-extrabold">Integrated Compiler IDE</h1>
+          <p class="text-xs text-slate-500 mt-1">Write algorithms, execute against test inputs, compile solutions.</p>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-800 font-mono text-brand-primary text-xs bg-slate-950 shadow-glow-cyan">
+          <i data-lucide="timer" class="w-4 h-4"></i>
+          <span id="coding-timer-text">45:00</span>
+        </div>
+      </div>
+ 
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="space-y-6">
+          <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-3">
+            <span class="text-[9px] font-bold uppercase text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full" id="coding-category-badge">ALGORITHMS EASY</span>
+            <h3 class="font-bold text-white text-base" id="coding-challenge-title">Two Sum</h3>
+            <p class="text-xs text-slate-400 leading-relaxed" id="coding-challenge-desc">
+              Given an array of integers <code class="bg-slate-950 px-1 py-0.5 rounded">nums</code> and an integer <code class="bg-slate-950 px-1 py-0.5 rounded">target</code>, return indices of the two numbers such that they add up to <code class="bg-slate-950 px-1 py-0.5 rounded">target</code>.
+            </p>
+          </div>
+ 
+          <!-- Hints panel -->
+          <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-3">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">AI Coaching Hints</h4>
+              <button onclick="requestCodingHint()" class="text-[10px] text-brand-primary bg-brand-primary/10 border border-brand-primary/20 px-2 py-0.5 rounded-full animate-pulse">Request Hint</button>
+            </div>
+            <div id="coding-hints-container" class="space-y-2 text-xs text-slate-400 font-mono">
+              <div class="p-3 bg-slate-950 border border-slate-900 rounded-lg">Stuck? Click request hint above.</div>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="space-y-4">
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between min-h-[300px]">
+            <textarea id="coding-area" class="w-full bg-transparent border-none outline-none font-mono text-xs text-slate-200 h-64 resize-none leading-relaxed" oninput="triggerCodingTimer()">function twoSum(nums, target) {
+    // Write your code here
+    
+}</textarea>
+            <div class="flex justify-end pt-3 border-t border-slate-900">
+              <button onclick="runMockCode()" class="px-5 py-2 rounded-xl bg-brand-primary text-slate-950 font-semibold text-xs">Run Compiler tests</button>
+            </div>
+          </div>
+
+          <div class="p-5 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-2">
+            <h4 class="font-bold text-[10px] uppercase text-slate-500 tracking-wider">Runtime Console</h4>
+            <div id="compiler-terminal" class="p-3 bg-slate-950 border border-slate-900 min-h-[60px] font-mono text-xs text-slate-400">
+              Console idle.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 8: RESUME ANALYZER -->
+    <div id="page-resume" class="page-content hidden space-y-8 animate-fade-in">
+      <div class="border-b border-slate-900 pb-4">
+        <h1 class="text-3xl font-extrabold">ATS Resume Analyzer</h1>
+        <p class="text-xs text-slate-500 mt-1">Audit CV formatting parameters and keywords checklist.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 space-y-4">
+          <h3 class="font-bold text-sm uppercase text-slate-400 tracking-wider">Document Drop zone</h3>
+          <div id="ats-dropzone" onclick="triggerAtsResumeUpload()" class="border-2 border-dashed border-slate-800 hover:border-slate-700 bg-slate-950 p-6 rounded-xl text-center cursor-pointer flex flex-col justify-center items-center h-40 relative">
+            <input type="file" id="ats-resume-file" accept=".pdf,.doc,.docx,.txt" class="hidden" onchange="handleAtsResumeChange(event)">
+            <i data-lucide="file-up" class="w-8 h-8 text-slate-600 mb-2" id="ats-upload-icon"></i>
+            <span class="text-xs font-bold text-slate-300" id="ats-resume-status-text">Select or Drag Resume here</span>
+            <span class="text-[9px] text-slate-500 mt-0.5" id="ats-resume-details">PDF, DOCX, or TXT formats accepted</span>
+          </div>
+          <button onclick="runATSScan()" class="w-full py-2.5 rounded-xl bg-brand-primary text-slate-950 font-semibold text-xs uppercase tracking-wider">
+            Run ATS Scan check
+          </button>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+          <div id="ats-scan-report" class="hidden space-y-6">
+            <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 flex justify-between items-center">
+              <div>
+                <span class="text-[9px] font-bold text-brand-primary bg-brand-primary/10 px-2.5 py-0.5 rounded-full">ATS SCORECARD</span>
+                <h3 class="text-base font-bold text-white mt-2">ATS Compatibility Scored</h3>
+              </div>
+              <div class="w-14 h-14 bg-gradient-to-tr from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white font-extrabold text-lg">
+                82%
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-5 rounded-xl border border-slate-900 bg-slate-900/10 space-y-2">
+                <h4 class="font-bold text-xs text-emerald-400">Matched Keywords</h4>
+                <div class="flex flex-wrap gap-1">
+                  <span class="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">REACT</span>
+                  <span class="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">JAVASCRIPT</span>
+                  <span class="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">NODE.JS</span>
+                </div>
+              </div>
+              <div class="p-5 rounded-xl border border-slate-900 bg-slate-900/10 space-y-2">
+                <h4 class="font-bold text-xs text-rose-400">Missing Keywords</h4>
+                <div class="flex flex-wrap gap-1">
+                  <span class="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-full">DOCKER</span>
+                  <span class="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-full">AWS CLOUD</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="ats-idle-box" class="p-12 border border-dashed border-slate-800 text-slate-500 text-center rounded-2xl">
+            Click Run ATS Scan on the left to analyze CV text keywords.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 9: ADMIN DASHBOARD -->
+    <div id="page-admin" class="page-content hidden space-y-8 animate-fade-in">
+      <div class="border-b border-slate-900 pb-4">
+        <h1 class="text-3xl font-extrabold flex items-center gap-2">
+          <i data-lucide="shield" class="w-7 h-7 text-brand-secondary"></i>
+          Admin Control Center
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">Manage mock questions databases and users list.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-5 rounded-xl border border-slate-900 bg-slate-900/10 flex items-center gap-3">
+          <i data-lucide="users" class="w-5 h-5 text-brand-primary"></i>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase block">Registered Users</span>
+            <span class="text-lg font-bold">142 Accounts</span>
+          </div>
+        </div>
+        <div class="p-5 rounded-xl border border-slate-900 bg-slate-900/10 flex items-center gap-3">
+          <i data-lucide="database" class="w-5 h-5 text-brand-secondary"></i>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase block">Interview Questions</span>
+            <span class="text-lg font-bold">36 Templates</span>
+          </div>
+        </div>
+        <div class="p-5 rounded-xl border border-slate-900 bg-slate-900/10 flex items-center gap-3">
+          <i data-lucide="trending-up" class="w-5 h-5 text-emerald-400"></i>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase block">Platform Average</span>
+            <span class="text-lg font-bold">81.5% Grade</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <form onsubmit="alert('Mock Question Saved to MongoDB!'); event.preventDefault();" class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
+          <h3 class="font-bold text-sm uppercase text-slate-400 tracking-wider">Add New Question</h3>
+          <div class="space-y-1.5 text-xs">
+            <label class="font-semibold text-slate-400">Target Role Title</label>
+            <input type="text" placeholder="e.g., React Engineer" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white" required>
+          </div>
+          <div class="space-y-1.5 text-xs">
+            <label class="font-semibold text-slate-400">Question Text</label>
+            <textarea placeholder="Write question details..." class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white h-20 resize-none" required></textarea>
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-primary text-slate-950 font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-1">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Register Question
+          </button>
+        </form>
+
+        <div class="lg:col-span-2 p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
+          <h3 class="font-bold text-sm uppercase text-slate-400 tracking-wider">Registered Users</h3>
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-900">
+              <div>
+                <h4 class="font-bold text-white">Alex Rivera</h4>
+                <p class="text-[9px] text-slate-500 mt-0.5">alex@domain.com | Software Developer</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold uppercase text-[8px]">USER</span>
+            </div>
+            <div class="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-900">
+              <div>
+                <h4 class="font-bold text-white">Jessica Chen</h4>
+                <p class="text-[9px] text-slate-500 mt-0.5">jess@domain.com | Product Designer</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold uppercase text-[8px]">USER</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 10: PROFILE -->
+    <div id="page-settings" class="page-content hidden space-y-8 animate-fade-in">
+      <div class="border-b border-slate-900 pb-4">
+        <h1 class="text-3xl font-extrabold">My Profile</h1>
+        <p class="text-xs text-slate-500 mt-1">View your candidate account credentials and active session parameters.</p>
+      </div>
+
+      <div class="max-w-xl mx-auto">
+        <div class="p-8 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-6 flex flex-col items-center text-center relative overflow-hidden shadow-2xl">
+          <!-- User Avatar -->
+          <div class="w-24 h-24 rounded-3xl bg-slate-950 border border-slate-800 p-1 flex items-center justify-center shadow-cyan-500/20 overflow-hidden shrink-0">
+            <img id="active-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=TalkPrep" alt="User Avatar" class="w-full h-full object-contain bg-slate-900">
+          </div>
+
+          <!-- User details -->
+          <div class="space-y-1">
+            <h2 id="settings-name-text" class="text-2xl font-extrabold text-white">John Candidate</h2>
+            <p id="settings-email-text" class="text-xs text-slate-500 font-mono">user@talkprep.ai</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 w-full max-w-sm pt-4 border-t border-slate-900/80">
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-900 text-center">
+              <span class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider block">Target Role</span>
+              <span id="settings-role-text" class="text-xs font-bold text-white mt-1 block">Software Engineer</span>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-900 text-center">
+              <span class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider block">Difficulty Level</span>
+              <span id="settings-level-text" class="text-xs font-bold text-white mt-1 block">Intermediate</span>
+            </div>
+          </div>
+
+          <!-- Professional Bio -->
+          <div class="w-full border-t border-slate-900/80 pt-4 text-left space-y-1.5">
+            <span class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider block">Professional Bio</span>
+            <p id="settings-bio-text" class="text-xs text-slate-400 leading-relaxed font-medium bg-slate-950/40 p-4 rounded-2xl border border-slate-900/80">No bio provided. Edit profile to add a self-summary.</p>
+          </div>
+
+          <!-- Skills list -->
+          <div class="w-full border-t border-slate-900/80 pt-4 text-left space-y-1.5">
+            <span class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider block">Core Skills & Expertise</span>
+            <div id="settings-skills-container" class="flex flex-wrap gap-1.5 pt-1">
+              <!-- Dynamically populated skills badges -->
+            </div>
+          </div>
+
+          <!-- Social Links -->
+          <div class="w-full border-t border-slate-900/80 pt-4 text-left space-y-1.5 flex justify-between items-center">
+            <div>
+              <span class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider block">Social Profiles</span>
+              <div class="flex gap-4 mt-1.5 text-xs text-slate-400 font-mono">
+                <a id="settings-github-link" href="#" target="_blank" class="hover:text-brand-primary flex items-center gap-1"><i data-lucide="github" class="w-3.5 h-3.5"></i> GitHub</a>
+                <a id="settings-linkedin-link" href="#" target="_blank" class="hover:text-brand-primary flex items-center gap-1"><i data-lucide="linkedin" class="w-3.5 h-3.5"></i> LinkedIn</a>
+              </div>
+            </div>
+            
+            <button onclick="openEditProfileModal()" class="py-1.5 px-3 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-850 text-[10px] font-bold text-white transition-all flex items-center gap-1 cursor-pointer">
+              <i data-lucide="edit-3" class="w-3 h-3"></i> Edit Profile
+            </button>
+          </div>
+
+          <!-- Logout button -->
+          <button onclick="mockLogout()" class="w-full max-w-xs py-3 px-6 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/20 font-semibold text-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:shadow-rose-500/20 mt-4">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Sign Out from Session
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW PAGE 11: RESUME BUILDER -->
+    <div id="page-resume-builder" class="page-content hidden space-y-8 animate-fade-in no-print-wrapper">
+      <div class="border-b border-slate-900 pb-4 flex justify-between items-center print:hidden">
+        <div>
+          <h1 class="text-3xl font-extrabold">Resume Builder</h1>
+          <p class="text-xs text-slate-500 mt-1">Build your professional ATS-optimized resume in real-time and export as a clean PDF document.</p>
+        </div>
+        <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-brand-primary text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          Download PDF / Print
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 print:block print:p-0">
+        <!-- Form Fields -->
+        <div class="space-y-6 print:hidden">
+          <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Choose ATS Template Layout</h3>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="setResumeTemplate('modern')" id="tpl-btn-modern" class="py-2.5 rounded-xl border border-brand-primary bg-brand-primary/10 text-brand-primary text-xs font-bold">Modern</button>
+              <button onclick="setResumeTemplate('minimalist')" id="tpl-btn-minimalist" class="py-2.5 rounded-xl border border-slate-900 bg-slate-950/60 text-slate-400 text-xs font-bold hover:border-slate-800">Minimalist</button>
+              <button onclick="setResumeTemplate('classic')" id="tpl-btn-classic" class="py-2.5 rounded-xl border border-slate-900 bg-slate-950/60 text-slate-400 text-xs font-bold hover:border-slate-800">Classic</button>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Personal Parameters</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1 text-xs">
+                <label class="font-semibold text-slate-400">Full Name</label>
+                <input type="text" id="res-name" oninput="syncResumePreview()" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white">
+              </div>
+              <div class="space-y-1 text-xs">
+                <label class="font-semibold text-slate-400">Email Address</label>
+                <input type="email" id="res-email" oninput="syncResumePreview()" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white">
+              </div>
+              <div class="space-y-1 text-xs">
+                <label class="font-semibold text-slate-400">Phone</label>
+                <input type="text" id="res-phone" value="+1 (555) 019-2834" oninput="syncResumePreview()" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white">
+              </div>
+              <div class="space-y-1 text-xs">
+                <label class="font-semibold text-slate-400">Location</label>
+                <input type="text" id="res-location" value="San Francisco, CA" oninput="syncResumePreview()" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white">
+              </div>
+            </div>
+            <div class="space-y-1 text-xs">
+              <label class="font-semibold text-slate-400">Website / Portfolio</label>
+              <input type="text" id="res-website" value="github.com/developer" oninput="syncResumePreview()" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white">
+            </div>
+            <div class="space-y-1 text-xs">
+              <label class="font-semibold text-slate-400">Professional Summary</label>
+              <textarea id="res-summary" oninput="syncResumePreview()" rows="3" class="w-full bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-white resize-none leading-relaxed">Highly motivated software engineering candidate with hands-on experience in building scalable full-stack web applications.</textarea>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Skill Sets</h3>
+            <div id="res-skills-container" class="flex flex-wrap gap-1.5 p-3 bg-slate-950 border border-slate-900 rounded-2xl min-h-[40px]">
+              <!-- Tags rendered by JS -->
+            </div>
+            <div class="flex gap-2">
+              <input type="text" id="res-new-skill" placeholder="Add skill (e.g. React)" class="flex-grow bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-xs text-white">
+              <button onclick="addResumeSkill()" class="p-2.5 bg-slate-900 border border-slate-900 text-brand-primary rounded-xl flex items-center justify-center shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+          
+          <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Work Experience Timeline</h3>
+            <div id="res-exp-list" class="space-y-2 max-h-[140px] overflow-y-auto pr-1"></div>
+            <div class="space-y-3 pt-2 border-t border-slate-900/80 grid grid-cols-2 gap-3">
+              <input type="text" id="res-exp-company" placeholder="Company Name" class="col-span-2 bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-xs text-white">
+              <input type="text" id="res-exp-role" placeholder="Job Title" class="bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-xs text-white">
+              <input type="text" id="res-exp-duration" placeholder="Duration (e.g. 2025 - Present)" class="bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-xs text-white">
+              <textarea id="res-exp-desc" placeholder="Role description..." rows="2" class="col-span-2 bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-xs text-white resize-none"></textarea>
+              <button onclick="addResumeExperience()" class="col-span-2 py-2 rounded-xl border border-dashed border-slate-800 text-slate-400 font-bold text-xs hover:bg-slate-900 flex items-center justify-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Experience</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Print PDF Preview -->
+        <div class="p-8 rounded-3xl border border-slate-900 bg-[#040810]/40 overflow-y-auto max-h-[820px] shadow-2xl relative print:border-none print:bg-white print:p-0 print:max-h-none print:overflow-visible">
+          <div id="print-sheet-area" class="w-full max-w-xl mx-auto bg-white text-slate-800 p-8 shadow-md rounded-2xl min-h-[720px] print:shadow-none print:p-0 print:rounded-none select-text font-sans">
+            <div class="border-b pb-4 text-center border-slate-200" id="res-preview-header">
+              <h2 class="text-2xl font-bold tracking-tight text-slate-900 uppercase" id="preview-full-name">John Candidate</h2>
+              <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 text-slate-500 text-[10px] mt-1.5" id="preview-contact-details">
+                <span>email@example.com</span> • <span>+1 (555) 019-2834</span> • <span>San Francisco, CA</span>
+              </div>
+            </div>
+            
+            <div class="mt-5 space-y-1.5 text-xs text-justify">
+              <h4 class="text-[10px] font-extrabold uppercase text-slate-900 tracking-wider">Professional Profile</h4>
+              <p class="text-slate-600 leading-relaxed" id="preview-summary">Highly motivated software engineering candidate...</p>
+            </div>
+
+            <div class="mt-5 space-y-2">
+              <h4 class="text-[10px] font-extrabold uppercase text-slate-900 tracking-wider border-b border-slate-200 pb-0.5">Professional Experience</h4>
+              <div class="space-y-4" id="preview-experience-container"></div>
+            </div>
+
+            <div class="mt-5 space-y-1.5">
+              <h4 class="text-[10px] font-extrabold uppercase text-slate-900 tracking-wider border-b border-slate-200 pb-0.5">Expertise & Skillsets</h4>
+              <p class="text-xs text-slate-600 leading-relaxed font-semibold" id="preview-skills-text"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW PAGE 12: QUIZ ARENA -->
+    <div id="page-quiz" class="page-content hidden space-y-8 animate-fade-in">
+      
+      <!-- START SCREEN -->
+      <div id="quiz-start-screen" class="max-w-3xl mx-auto text-center space-y-10 py-10">
+        <div class="space-y-3">
+          <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">Interactive <span class="text-brand-primary">Quiz Arena</span></h1>
+          <p class="text-sm text-slate-500 max-w-lg mx-auto">Test your quantitative aptitude, technical standards, and logical coding skills under timed conditions.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between items-center text-center space-y-6">
+            <div class="w-12 h-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center text-brand-primary"><i data-lucide="help-circle" class="w-6 h-6"></i></div>
+            <div>
+              <h3 class="text-lg font-bold text-white">Aptitude Quiz</h3>
+              <p class="text-xs text-slate-500 mt-2">Quantitative formulas, averages, and ratio computations.</p>
+            </div>
+            <button onclick="startHtmlQuiz('aptitude')" class="w-full py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-brand-primary font-bold text-xs border border-slate-900 transition-colors flex items-center justify-center gap-1"><i data-lucide="play" class="w-3.5 h-3.5"></i> Start Aptitude</button>
+          </div>
+
+          <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between items-center text-center space-y-6">
+            <div class="w-12 h-12 rounded-2xl bg-brand-secondary/10 flex items-center justify-center text-brand-secondary"><i data-lucide="award" class="w-6 h-6"></i></div>
+            <div>
+              <h3 class="text-lg font-bold text-white">Technical Quiz</h3>
+              <p class="text-xs text-slate-500 mt-2">Standard web parameters, database models, and React specs.</p>
+            </div>
+            <button onclick="startHtmlQuiz('technical')" class="w-full py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-brand-secondary font-bold text-xs border border-slate-900 transition-colors flex items-center justify-center gap-1"><i data-lucide="play" class="w-3.5 h-3.5"></i> Start Technical</button>
+          </div>
+
+          <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between items-center text-center space-y-6">
+            <div class="w-12 h-12 rounded-2xl bg-brand-accent/10 flex items-center justify-center text-brand-accent"><i data-lucide="clock" class="w-6 h-6"></i></div>
+            <div>
+              <h3 class="text-lg font-bold text-white">Coding Logic</h3>
+              <p class="text-xs text-slate-500 mt-2">Data structures time-complexities, search algorithms, and code outputs.</p>
+            </div>
+            <button onclick="startHtmlQuiz('coding')" class="w-full py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-brand-accent font-bold text-xs border border-slate-900 transition-colors flex items-center justify-center gap-1"><i data-lucide="play" class="w-3.5 h-3.5"></i> Start Logic</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IN PROGRESS SCREEN -->
+      <div id="quiz-run-screen" class="hidden max-w-3xl mx-auto space-y-6">
+        <div class="flex justify-between items-center p-4 rounded-2xl border border-slate-900 bg-slate-900/10">
+          <div>
+            <span class="text-[10px] text-brand-primary font-bold uppercase tracking-wider">Timed Quiz Arena</span>
+            <h2 class="text-sm font-bold text-white capitalize" id="quiz-run-category">Aptitude Quiz</h2>
+          </div>
+          <div id="quiz-timer" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 font-mono text-xs font-bold">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            <span id="quiz-timer-text">5:00</span>
+          </div>
+        </div>
+
+        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+          <div id="quiz-progress-bar" class="h-full bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full transition-all duration-300" style="width: 20%"></div>
+        </div>
+
+        <div class="p-6 sm:p-8 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-8 min-h-[300px] flex flex-col justify-between">
+          <div class="space-y-4">
+            <span class="text-xs font-mono text-slate-500" id="quiz-question-tracker">Question 1 of 5</span>
+            <h3 class="text-base sm:text-lg font-bold text-white leading-relaxed" id="quiz-question-text">Question Prompt...</h3>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3.5 my-6" id="quiz-options-list"></div>
+
+          <div class="flex justify-between items-center pt-4 border-t border-slate-900/60">
+            <button onclick="prevQuizQuestion()" id="quiz-prev-btn" class="px-4 py-2 rounded-xl border border-slate-900 bg-slate-950 text-xs font-semibold text-slate-400 hover:text-white">Previous</button>
+            <button onclick="nextQuizQuestion()" id="quiz-next-btn" class="px-5 py-2.5 rounded-xl bg-slate-900 text-brand-primary border border-slate-900 font-bold text-xs">Next Question</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS SCREEN -->
+      <div id="quiz-result-screen" class="hidden max-w-3xl mx-auto space-y-8">
+        <div class="p-8 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col items-center justify-center text-center space-y-6 shadow-2xl relative">
+          <h2 class="text-xl sm:text-2xl font-extrabold text-white">Quiz Evaluation Completed</h2>
+          
+          <div class="relative w-36 h-36 flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90">
+              <circle cx="72" cy="72" r="50" class="stroke-slate-900 fill-none" stroke-width="10"></circle>
+              <circle id="quiz-gauge-ring" cx="72" cy="72" r="50" class="stroke-brand-primary fill-none" stroke-width="10" stroke-linecap="round"></circle>
+            </svg>
+            <div class="absolute text-center">
+              <span class="text-3xl font-extrabold text-white leading-none" id="quiz-result-score">80%</span>
+              <span class="text-[10px] text-slate-500 block mt-0.5" id="quiz-result-correct">4 of 5 Correct</span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400 max-w-md" id="quiz-feedback-text">Nice work! You've successfully parsed this category.</p>
+
+          <div class="flex gap-4 pt-2">
+            <button onclick="resetHtmlQuiz()" class="px-5 py-2.5 rounded-xl border border-slate-850 bg-slate-950 text-xs font-bold text-slate-400 hover:text-white flex items-center gap-1.5"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Retake Quiz</button>
+            <button onclick="showPage('dashboard')" class="px-5 py-2.5 rounded-xl bg-brand-primary text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Back to Dashboard</button>
+          </div>
+        </div>
+
+        <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4">
+          <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider pl-1">Detailed Question Review</h3>
+          <div class="space-y-4" id="quiz-review-container"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NEW PAGE 13: DOMAIN PRACTICE HUB -->
+    <div id="page-domain-practice" class="page-content hidden space-y-8 animate-fade-in">
+      
+      <!-- DOMAIN SELECTION GRID -->
+      <div id="domain-start-screen" class="space-y-10">
+        <div class="text-center max-w-2xl mx-auto space-y-3">
+          <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">Domain <span class="text-brand-primary">Practice Hub</span></h1>
+          <p class="text-xs sm:text-sm text-slate-500">Practice specialized job domain questions. Answer in detail and receive instant, AI-powered score audits, critique feedback, and code pointers.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="domain-grid-container">
+          <!-- 8 Domain Boxes Rendered via JavaScript -->
+        </div>
+      </div>
+
+      <!-- ACTIVE WORKSPACE -->
+      <div id="domain-run-screen" class="hidden max-w-4xl mx-auto space-y-6">
+        <div class="flex justify-between items-center p-4 rounded-2xl border border-slate-900 bg-slate-900/10">
+          <div>
+            <span class="text-[10px] text-brand-primary font-bold uppercase tracking-wider">Practice Room</span>
+            <h2 class="text-sm font-bold text-white" id="domain-run-title">Frontend Developer</h2>
+          </div>
+          <div id="domain-run-tracker" class="text-xs font-mono font-bold text-slate-400 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-900">Q: 1 / 3</div>
+        </div>
+
+        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+          <div id="domain-progress-bar" class="h-full bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full transition-all duration-300" style="width: 33%"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-6">
+              <div class="space-y-2">
+                <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest block">Question Prompt</span>
+                <h3 class="text-sm sm:text-base font-bold text-white leading-relaxed" id="domain-question-text">Question Prompt...</h3>
+              </div>
+
+              <div class="space-y-4">
+                <div class="space-y-1">
+                  <label class="text-[9px] font-bold text-slate-500 uppercase tracking-wider pl-0.5">Type your answer response</label>
+                  <textarea id="domain-answer-textarea" placeholder="Type your explanation here. Use technical definitions, keywords, or examples..." rows="6" class="w-full bg-slate-950 border border-slate-900 rounded-2xl py-3 px-4 text-xs sm:text-sm text-slate-200 outline-none focus:border-brand-primary resize-none leading-relaxed"></textarea>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <button onclick="resetDomainPractice()" class="px-4 py-2.5 rounded-xl border border-slate-900 bg-slate-950 text-xs font-semibold text-slate-400 hover:text-white">Exit Session</button>
+                  <div class="flex gap-2">
+                    <button onclick="submitDomainAnswer()" id="domain-validate-btn" class="px-6 py-2.5 rounded-xl bg-brand-primary text-slate-950 font-bold text-xs flex items-center gap-1.5"><i data-lucide="cpu" class="w-4 h-4"></i> Validate via AI</button>
+                    <button onclick="nextDomainQuestion()" id="domain-next-btn" class="hidden px-6 py-2.5 rounded-xl bg-slate-900 text-brand-primary border border-slate-900 font-bold text-xs">Next Question <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-1">
+            <div id="domain-critique-idle" class="p-6 rounded-3xl border border-dashed border-slate-900 bg-slate-950/40 text-center text-xs text-slate-600 h-full min-h-[180px] flex flex-col justify-center items-center gap-2">
+              <i data-lucide="cpu" class="w-8 h-8 text-slate-800 animate-pulse"></i>
+              <span>Submit your answer response to load the AI-powered critique score assessment.</span>
+            </div>
+            
+            <div id="domain-critique-panel" class="hidden space-y-4">
+              <div class="p-4 rounded-2xl border flex items-center gap-3 text-emerald-400 border-emerald-500/20 bg-emerald-500/5" id="domain-critique-score-box">
+                <i data-lucide="check-circle" class="w-5 h-5 shrink-0" id="domain-critique-icon"></i>
+                <div>
+                  <span class="text-[9px] font-bold uppercase tracking-wider block" id="domain-critique-label">Correct Answer</span>
+                  <span class="text-lg font-extrabold mt-0.5 block" id="domain-critique-score-text">AI Score: 85%</span>
+                </div>
+              </div>
+
+              <div class="p-5 rounded-3xl border border-slate-900 bg-slate-900/10 space-y-4 text-xs max-h-[360px] overflow-y-auto pr-1">
+                <div class="space-y-1">
+                  <h4 class="font-bold text-white uppercase tracking-wider text-[10px]">AI Critique Feedback</h4>
+                  <p class="text-slate-400 leading-relaxed text-[11px]" id="domain-critique-feedback">Detailed AI Feedback...</p>
+                </div>
+                <div class="space-y-1.5 pt-2 border-t border-slate-900/60">
+                  <h4 class="font-bold text-brand-secondary uppercase tracking-wider text-[10px]">Suggestions</h4>
+                  <p class="text-slate-400 leading-normal text-[11px]" id="domain-critique-suggestions">Add technical terminology.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRACTICE SESSION COMPLETION SCREEN -->
+      <div id="domain-finish-screen" class="hidden max-w-3xl mx-auto space-y-8">
+        <div class="p-8 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col items-center justify-center text-center space-y-6 shadow-2xl relative">
+          <h2 class="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2"><i data-lucide="shield-check" class="w-6.5 h-6.5 text-brand-primary"></i> Practice Domain Complete</h2>
+          <div class="p-4 bg-slate-950/80 rounded-2xl border border-slate-900 flex items-center justify-between gap-6 max-w-sm w-full">
+            <div class="text-left">
+              <span class="text-[10px] text-slate-500 uppercase block">Overall Grade</span>
+              <span class="text-2xl font-extrabold text-emerald-400" id="domain-final-score">82%</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-500 uppercase block">Tasks Solved</span>
+              <span class="text-xs font-bold text-white">3 Questions</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400 max-w-md">Great practice session! Consistent domain-specific technical preparation boosts memory recall and helps build structured technical communication skills.</p>
+          <div class="flex gap-4 pt-2">
+            <button onclick="handleHtmlDomainRetake()" class="px-5 py-2.5 rounded-xl border border-slate-850 bg-slate-950 text-xs font-bold text-slate-400 hover:text-white flex items-center gap-1.5"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Retake Practice</button>
+            <button onclick="showPage('dashboard')" class="px-5 py-2.5 rounded-xl bg-brand-primary text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Hub</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Edit Profile Modal -->
+  <div id="edit-profile-modal" class="hidden fixed inset-0 z-[9995] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-950 p-6 relative shadow-2xl">
+      <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 p-1.5 rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white transition-colors cursor-pointer">
+        <i data-lucide="x" class="w-4.5 h-4.5"></i>
+      </button>
+      
+      <h2 class="text-lg font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-1.5">
+        <i data-lucide="sliders" class="w-5 h-5 text-brand-primary"></i>
+        Edit Profile Details
+      </h2>
+      
+      <div class="space-y-4">
+        <!-- Photo Upload block -->
+        <div class="flex items-center gap-4 p-3 rounded-2xl border border-slate-900 bg-slate-900/10">
+          <div class="w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 p-0.5 overflow-hidden shrink-0 flex items-center justify-center shadow-lg">
+            <img id="edit-profile-avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=TalkPrep" alt="Preview" class="w-full h-full object-contain rounded-xl bg-slate-900">
+          </div>
+          <div class="flex-1">
+            <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Profile Photo</label>
+            <input type="file" accept="image/*" onchange="handleHTMLAvatarUpload(event)" class="hidden" id="profile-photo-upload-html">
+            <label for="profile-photo-upload-html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-850 text-xs font-semibold text-slate-300 cursor-pointer transition-colors inline-block">
+              Upload Image
+            </label>
+            <span class="text-[8px] text-slate-500 block mt-1">PNG, JPG up to 2MB.</span>
+          </div>
+        </div>
+
+        <!-- Name -->
+        <div class="space-y-1">
+          <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">Full Name</label>
+          <input type="text" id="edit-profile-name-input" class="w-full p-2.5 rounded-xl border border-slate-900 bg-slate-950 text-sm font-semibold text-white focus:outline-none focus:border-brand-primary" placeholder="e.g. John Doe">
+        </div>
+
+        <!-- Target Role -->
+        <div class="space-y-1">
+          <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">Target Role</label>
+          <input type="text" id="edit-profile-role-input" class="w-full p-2.5 rounded-xl border border-slate-900 bg-slate-950 text-sm font-semibold text-white focus:outline-none focus:border-brand-primary" placeholder="e.g. Frontend Engineer">
+        </div>
+
+        <!-- Level dropdown -->
+        <div class="space-y-1">
+          <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">Difficulty Level</label>
+          <select id="edit-profile-level-input" class="w-full p-2.5 rounded-xl border border-slate-900 bg-slate-950 text-sm font-semibold text-white focus:outline-none focus:border-brand-primary cursor-pointer">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        </div>
+
+        <!-- Biography -->
+        <div class="space-y-1">
+          <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">Biography</label>
+          <textarea id="edit-profile-bio-input" rows="2" class="w-full p-2.5 rounded-xl border border-slate-900 bg-slate-950 text-sm font-semibold text-white focus:outline-none focus:border-brand-primary resize-none" placeholder="Write a short summary about yourself..."></textarea>
+        </div>
+
+        <!-- Skills -->
+        <div class="space-y-1">
+          <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">Skills (comma-separated)</label>
+          <input type="text" id="edit-profile-skills-input" class="w-full p-2.5 rounded-xl border border-slate-900 bg-slate-950 text-sm font-semibold text-white focus:outline-none focus:border-brand-primary" placeholder="e.g. JavaScript, React, Python, SQL">
+        </div>
+
+        <!-- Social links -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">GitHub URL</label>
+            <input type="text" id="edit-profile-github-input" class="w-full p-2.5 rounded-xl border border-slate-900 bg-slate-950 text-xs font-semibold text-white focus:outline-none focus:border-brand-primary" placeholder="github.com/...">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">LinkedIn URL</label>
+            <input type="text" id="edit-profile-linkedin-input" class="w-full p-2.5 rounded-xl border border-slate-900 bg-slate-950 text-xs font-semibold text-white focus:outline-none focus:border-brand-primary" placeholder="linkedin.com/in/...">
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 pt-4">
+          <button onclick="closeEditProfileModal()" class="flex-1 py-2.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-850 text-xs font-semibold text-slate-300 transition-colors cursor-pointer">
+            Cancel
+          </button>
+          <button onclick="saveProfileChanges()" class="flex-grow py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-slate-950 font-bold text-xs flex items-center justify-center gap-1 cursor-pointer">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-xs text-slate-600 print:hidden">
+    &copy; 2026 TalkPrep.AI Inc. All rights reserved.
+  </footer>
+
+  <!-- Floating AI Assistant Chatbot -->
+  <div class="fixed bottom-6 right-6 z-[9990] font-sans print:hidden">
+    <button onclick="toggleChatWindow()" class="w-14 h-14 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white shadow-lg flex items-center justify-center cursor-pointer hover:shadow-cyan-500/20 transition-shadow">
+      <i data-lucide="message-square" class="w-6 h-6"></i>
+    </button>
+
+    <div id="chat-window" class="hidden absolute bottom-16 right-0 w-[340px] h-[420px] rounded-2xl border border-slate-800 shadow-2xl glass-panel flex flex-col justify-between overflow-hidden">
+      <div class="p-4 bg-slate-950 text-white flex items-center justify-between border-b border-slate-900">
+        <span class="text-xs font-bold">AI Career Coach</span>
+        <button onclick="toggleChatWindow()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 text-xs">
+        <div class="flex gap-2">
+          <div class="p-2.5 rounded-xl bg-slate-900 text-slate-300">
+            Hi! Ask me any questions about project ideas, resume optimization tips, or coding loops!
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-2">
+        <input type="text" id="chat-input" placeholder="Ask a doubt..." class="flex-1 bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-white outline-none">
+        <button onclick="sendChatMessage()" class="w-8 h-8 rounded-lg bg-brand-primary text-slate-950 flex items-center justify-center shrink-0">
+          <i data-lucide="send" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global User State variables
+    let currentUser = null;
+    let tempAvatar = "";
+
+    // Initialize icons
+    lucide.createIcons();
+
+    // Single Page Router
+    function showPage(pageId) {
+      // Direct routing blocks if not authenticated
+      if (['dashboard', 'interview', 'coding', 'resume', 'admin', 'settings', 'resume-builder', 'quiz', 'domain-practice'].includes(pageId) && !currentUser) {
+        pageId = 'auth';
+      }
+
+      document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+      document.getElementById('page-' + pageId).classList.remove('hidden');
+
+      // Update Nav Buttons Styles
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('text-brand-primary');
+        b.classList.add('text-slate-400');
+      });
+      const activeBtn = document.getElementById('btn-' + pageId);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.add('text-brand-primary');
+      }
+
+      // Special initializations on page load
+      if (pageId === 'resume-builder') {
+        initResumeBuilder();
+      } else if (pageId === 'quiz') {
+        resetHtmlQuiz();
+      } else if (pageId === 'domain-practice') {
+        initDomainPractice();
+      } else if (pageId === 'interview') {
+        resetMockInterview();
+      } else if (pageId === 'coding') {
+        initCodingIDE();
+      }
+
+      lucide.createIcons();
+    }
+
+    // Initialize Local Storage database for mock accounts
+    if (!localStorage.getItem('mockUsers')) {
+      const defaultUsers = [
+        {
+          name: 'System Admin',
+          email: 'admin@talkprep.ai',
+          password: 'password123',
+          role: 'admin',
+          targetRole: 'Lead Architect',
+          level: 'Advanced',
+          avatar: '',
+          interviewsCount: 142,
+          challengesCount: 36,
+          streakCount: 5,
+          avgScore: 82,
+          badges: [
+            { title: 'Starter', icon: 'award', description: 'Unlock your first badge' },
+            { title: 'Algorithmist', icon: 'terminal', description: 'Solve code puzzles' },
+            { title: 'Honor Graduate', icon: 'star', description: 'Scored above 85%' }
+          ],
+          weeklyActivity: [
+            { day: 'Mon', count: 12 },
+            { day: 'Tue', count: 18 },
+            { day: 'Wed', count: 32 },
+            { day: 'Thu', count: 45 },
+            { day: 'Fri', count: 20 },
+            { day: 'Sat', count: 15 },
+            { day: 'Sun', count: 25 }
+          ]
+        },
+        {
+          name: 'John Candidate',
+          email: 'user@talkprep.ai',
+          password: 'password123',
+          role: 'user',
+          targetRole: 'Software Engineer',
+          level: 'Intermediate',
+          avatar: '',
+          interviewsCount: 3,
+          challengesCount: 5,
+          streakCount: 2,
+          avgScore: 78,
+          badges: [
+            { title: 'Starter', icon: 'award', description: 'Unlock your first badge' },
+            { title: 'Algorithmist', icon: 'terminal', description: 'Solve code puzzles' }
+          ],
+          weeklyActivity: [
+            { day: 'Mon', count: 2 },
+            { day: 'Tue', count: 1 },
+            { day: 'Wed', count: 0 },
+            { day: 'Thu', count: 5 },
+            { day: 'Fri', count: 1 },
+            { day: 'Sat', count: 0 },
+            { day: 'Sun', count: 2 }
+          ]
+        }
+      ];
+      localStorage.setItem('mockUsers', JSON.stringify(defaultUsers));
+    }
+
+    let isLoginMode = true;
+
+    function setAuthMode(isLogin) {
+      isLoginMode = isLogin;
+      const nameField = document.getElementById('auth-name-field');
+      const regDetails = document.getElementById('auth-register-details');
+      const title = document.getElementById('auth-title');
+      const subtitle = document.getElementById('auth-subtitle');
+      const submitBtn = document.getElementById('auth-submit-btn');
+      const tabSignin = document.getElementById('tab-signin');
+      const tabSignup = document.getElementById('tab-signup');
+
+      if (isLogin) {
+        nameField.classList.add('hidden');
+        regDetails.classList.add('hidden');
+        title.textContent = "Sign In Account";
+        subtitle.textContent = "Sign in to access your platform dashboard";
+        submitBtn.textContent = "Authenticate";
+        tabSignin.className = "flex-grow text-center py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer bg-slate-900 text-brand-primary shadow-sm";
+        tabSignup.className = "flex-grow text-center py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-slate-500 hover:text-slate-300";
+      } else {
+        nameField.classList.remove('hidden');
+        regDetails.classList.remove('hidden');
+        title.textContent = "Create Account";
+        subtitle.textContent = "Start your simulated mock prep journey today";
+        submitBtn.textContent = "Create Account";
+        tabSignup.className = "flex-grow text-center py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer bg-slate-900 text-brand-primary shadow-sm";
+        tabSignin.className = "flex-grow text-center py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-slate-500 hover:text-slate-300";
+      }
+    }
+
+    function handleAuthSubmit() {
+      const email = document.getElementById('auth-email-input').value.trim();
+      const pwd = document.getElementById('auth-pwd-input').value.trim();
+      const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
+
+      if (isLoginMode) {
+        if (!email || !pwd) {
+          alert('Please fill in login credentials.');
+          return;
+        }
+
+        const matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pwd);
+        if (!matchedUser) {
+          alert('Invalid email or password. If you do not have an account, please register.');
+          return;
+        }
+
+        currentUser = matchedUser;
+        loginSuccess();
+      } else {
+        const name = document.getElementById('auth-name-input').value.trim();
+        const role = document.getElementById('auth-role-input').value.trim();
+        const level = document.getElementById('auth-level-input').value;
+
+        if (!name || !email || !pwd || !role) {
+          alert('Please fill in all registration fields.');
+          return;
+        }
+
+        const emailExists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
+        if (emailExists) {
+          alert('An account with this email already exists.');
+          return;
+        }
+
+        const newUser = {
+          name,
+          email,
+          password: pwd,
+          role: 'user',
+          targetRole: role,
+          level: level,
+          avatar: '',
+          interviewsCount: 0,
+          challengesCount: 0,
+          streakCount: 1,
+          avgScore: 0,
+          badges: [
+            { title: 'Starter', icon: 'award', description: 'Unlock your first badge' }
+          ],
+          weeklyActivity: [
+            { day: 'Mon', count: 0 },
+            { day: 'Tue', count: 0 },
+            { day: 'Wed', count: 0 },
+            { day: 'Thu', count: 1 },
+            { day: 'Fri', count: 0 },
+            { day: 'Sat', count: 0 },
+            { day: 'Sun', count: 0 }
+          ]
+        };
+
+        users.push(newUser);
+        localStorage.setItem('mockUsers', JSON.stringify(users));
+
+        currentUser = newUser;
+        alert('Registration complete! Account created.');
+        loginSuccess();
+      }
+    }
+
+    function loginSuccess() {
+      // Update nav UI
+      document.getElementById('nav-signin-btn').classList.add('hidden');
+      document.getElementById('nav-user-badge').classList.remove('hidden');
+      document.getElementById('nav-user-name').innerText = currentUser.name;
+      document.getElementById('logged-in-nav-items').classList.remove('hidden');
+
+      // Update Dashboard values
+      document.getElementById('dash-welcome-text').innerText = `Welcome back, ${currentUser.name}!`;
+      document.getElementById('dash-target-role-text').innerText = `Target Role: ${currentUser.targetRole} | Level: ${currentUser.level}`;
+      document.getElementById('leaderboard-user-name').innerText = `${currentUser.name} (You)`;
+
+      // Update avatars
+      const avUrl = currentUser.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.name}`;
+      document.getElementById('dash-avatar-img').src = avUrl;
+      document.getElementById('active-avatar-img').src = avUrl;
+      document.getElementById('nav-avatar-mini-box').innerHTML = `<img src="${avUrl}" class="w-full h-full object-contain">`;
+
+      // Handle role-restricted navigation layouts
+      if (currentUser.role === 'admin') {
+        document.querySelectorAll('.candidate-link').forEach(l => l.classList.add('hidden'));
+        document.querySelector('.admin-link').classList.remove('hidden');
+      } else {
+        document.querySelectorAll('.candidate-link').forEach(l => l.classList.remove('hidden'));
+        document.querySelector('.admin-link').classList.add('hidden');
+      }
+
+      // Populate statistics dynamically
+      const intCount = currentUser.interviewsCount !== undefined ? currentUser.interviewsCount : 0;
+      const chalCount = currentUser.challengesCount !== undefined ? currentUser.challengesCount : 0;
+      const strkCount = currentUser.streakCount !== undefined ? currentUser.streakCount : 1;
+      const avScoreVal = currentUser.avgScore !== undefined ? currentUser.avgScore : 0;
+
+      document.getElementById('dash-interviews-count').innerText = `${intCount} ${intCount === 1 ? 'Session' : 'Sessions'}`;
+      document.getElementById('dash-challenges-count').innerText = `${chalCount} ${chalCount === 1 ? 'Solved' : 'Solved'}`;
+      document.getElementById('dash-streak-count').innerText = `${strkCount} ${strkCount === 1 ? 'Day' : 'Days'}`;
+      document.getElementById('dash-avg-score').innerText = `${avScoreVal}% Grade`;
+
+      // Update weekly activity chart
+      renderWeeklyActivityChart();
+
+      // Update badges container
+      renderBadgesUnlocked();
+
+      // Sort and render Candidate Leaderboard
+      renderLeaderboardWidget();
+
+      // Sync settings page elements
+      document.getElementById('settings-name-text').textContent = currentUser.name;
+      document.getElementById('settings-role-text').textContent = currentUser.targetRole;
+      document.getElementById('settings-level-text').textContent = currentUser.level;
+      document.getElementById('settings-email-text').textContent = currentUser.email;
+
+      // Sync new profile details
+      document.getElementById('settings-bio-text').textContent = currentUser.bio || 'No bio provided. Edit profile to add a self-summary.';
+      
+      const skillsContainer = document.getElementById('settings-skills-container');
+      skillsContainer.innerHTML = '';
+      const skills = currentUser.skills || ['JavaScript', 'React', 'HTML5', 'CSS3', 'Git'];
+      skills.forEach(skill => {
+        skillsContainer.innerHTML += `<span class="text-[9px] bg-brand-primary/10 text-brand-primary border border-brand-primary/20 px-2.5 py-0.5 rounded-full uppercase font-bold">${skill}</span>`;
+      });
+      
+      const githubLink = document.getElementById('settings-github-link');
+      if (currentUser.github) {
+        githubLink.href = currentUser.github.startsWith('http') ? currentUser.github : `https://${currentUser.github}`;
+        githubLink.classList.remove('opacity-50');
+      } else {
+        githubLink.href = '#';
+        githubLink.classList.add('opacity-50');
+      }
+      
+      const linkedinLink = document.getElementById('settings-linkedin-link');
+      if (currentUser.linkedin) {
+        linkedinLink.href = currentUser.linkedin.startsWith('http') ? currentUser.linkedin : `https://${currentUser.linkedin}`;
+        linkedinLink.classList.remove('opacity-50');
+      } else {
+        linkedinLink.href = '#';
+        linkedinLink.classList.add('opacity-50');
+      }
+
+      showPage('dashboard');
+    }
+
+    function renderWeeklyActivityChart() {
+      const chartContainer = document.getElementById('dash-weekly-chart');
+      if (!chartContainer) return;
+      
+      const defaultActivity = [
+        { day: 'Mon', count: 0 },
+        { day: 'Tue', count: 0 },
+        { day: 'Wed', count: 0 },
+        { day: 'Thu', count: 0 },
+        { day: 'Fri', count: 0 },
+        { day: 'Sat', count: 0 },
+        { day: 'Sun', count: 0 }
+      ];
+      
+      const activity = currentUser.weeklyActivity || defaultActivity;
+      const counts = activity.map(a => a.count);
+      const maxCount = Math.max(...counts, 1);
+      
+      let html = '';
+      activity.forEach(act => {
+        const heightPercent = Math.max(10, Math.round((act.count / maxCount) * 80 + 10)); // Minimum 10% height
+        html += `
+          <div class="flex-grow flex flex-col items-center gap-2">
+            <div class="w-full bg-slate-950 rounded-lg h-24 flex items-end overflow-hidden">
+              <div class="w-full bg-gradient-to-t from-brand-primary to-brand-secondary rounded-t-lg transition-all duration-500" style="height: ${heightPercent}%"></div>
+            </div>
+            <span class="text-[10px] font-medium text-slate-500">${act.day}</span>
+          </div>
+        `;
+      });
+      chartContainer.innerHTML = html;
+    }
+
+    function renderBadgesUnlocked() {
+      const badgesContainer = document.getElementById('dash-badges-container');
+      if (!badgesContainer) return;
+      
+      const defaultBadges = [
+        { title: 'Starter', icon: 'award', description: 'Unlock your first badge' }
+      ];
+      
+      const badges = currentUser.badges || defaultBadges;
+      let html = '';
+      badges.forEach(badge => {
+        html += `
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-900 text-center animate-fade-in" title="${badge.description || ''}">
+            <i data-lucide="${badge.icon || 'award'}" class="w-5 h-5 text-brand-primary mx-auto mb-1"></i>
+            <span class="text-[8px] font-bold block truncate">${badge.title}</span>
+          </div>
+        `;
+      });
+      badgesContainer.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function renderLeaderboardWidget() {
+      const container = document.getElementById('dash-leaderboard-container');
+      if (!container) return;
+      
+      const userScore = currentUser.avgScore !== undefined ? currentUser.avgScore : 0;
+      const candidates = [
+        { name: 'Alex Rivera', score: 94, isUser: false },
+        { name: 'Jessica Chen', score: 91, isUser: false },
+        { name: currentUser.name, score: userScore, isUser: true }
+      ];
+      
+      // Sort descending by score
+      candidates.sort((a, b) => b.score - a.score);
+      
+      let html = '';
+      candidates.forEach((cand, idx) => {
+        const rank = idx + 1;
+        if (cand.isUser) {
+          html += `
+            <div class="flex justify-between items-center bg-brand-primary/5 p-2.5 rounded-xl border border-brand-primary/20 animate-fade-in">
+              <span class="font-bold text-white">#${rank} ${cand.name} (You)</span>
+              <span class="font-extrabold text-brand-primary" id="leaderboard-user-score">${cand.score}%</span>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-xl border border-slate-900">
+              <span class="font-semibold text-slate-300">#${rank} ${cand.name}</span>
+              <span class="font-extrabold text-brand-primary">${cand.score}%</span>
+            </div>
+          `;
+        }
+      });
+      container.innerHTML = html;
+      
+      const userScoreEl = document.getElementById('leaderboard-user-score');
+      if (userScoreEl) userScoreEl.innerText = `${userScore}%`;
+      const userNameEl = document.getElementById('leaderboard-user-name');
+      if (userNameEl) userNameEl.innerText = `${currentUser.name} (You)`;
+    }
+
+    function saveCurrentUserToStorage() {
+      if (!currentUser) return;
+      const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
+      const idx = users.findIndex(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+      if (idx !== -1) {
+        users[idx] = currentUser;
+        localStorage.setItem('mockUsers', JSON.stringify(users));
+      }
+    }
+
+    function incrementWeeklyActivity() {
+      if (!currentUser) return;
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const currentDay = days[new Date().getDay()];
+      
+      if (!currentUser.weeklyActivity) {
+        currentUser.weeklyActivity = [
+          { day: 'Mon', count: 0 },
+          { day: 'Tue', count: 0 },
+          { day: 'Wed', count: 0 },
+          { day: 'Thu', count: 0 },
+          { day: 'Fri', count: 0 },
+          { day: 'Sat', count: 0 },
+          { day: 'Sun', count: 0 }
+        ];
+      }
+      
+      const dayAct = currentUser.weeklyActivity.find(w => w.day === currentDay);
+      if (dayAct) {
+        dayAct.count = (dayAct.count || 0) + 1;
+      }
+    }
+
+    function checkAndAwardBadge(title, description, icon) {
+      if (!currentUser) return;
+      if (!currentUser.badges) {
+        currentUser.badges = [];
+      }
+      
+      const alreadyHas = currentUser.badges.some(b => b.title.toLowerCase() === title.toLowerCase());
+      if (!alreadyHas) {
+        currentUser.badges.push({ title, description, icon });
+        alert(`Congratulations! You unlocked a new achievement badge: "${title}"!`);
+      }
+    }
+
+    function mockLogout() {
+      currentUser = null;
+      document.getElementById('nav-signin-btn').classList.remove('hidden');
+      document.getElementById('nav-user-badge').classList.add('hidden');
+      document.getElementById('logged-in-nav-items').classList.add('hidden');
+      showPage('home');
+      alert('Logged out successfully.');
+    }
+
+    // Modal Edit Profile Functions
+    function openEditProfileModal() {
+      if (!currentUser) return;
+      document.getElementById('edit-profile-name-input').value = currentUser.name;
+      document.getElementById('edit-profile-role-input').value = currentUser.targetRole;
+      document.getElementById('edit-profile-level-input').value = currentUser.level;
+      
+      document.getElementById('edit-profile-bio-input').value = currentUser.bio || "";
+      document.getElementById('edit-profile-skills-input').value = (currentUser.skills || []).join(', ');
+      document.getElementById('edit-profile-github-input').value = currentUser.github || "";
+      document.getElementById('edit-profile-linkedin-input').value = currentUser.linkedin || "";
+      
+      const avUrl = currentUser.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.name}`;
+      document.getElementById('edit-profile-avatar-preview').src = avUrl;
+      tempAvatar = currentUser.avatar || "";
+      
+      document.getElementById('edit-profile-modal').classList.remove('hidden');
+    }
+
+    function closeEditProfileModal() {
+      document.getElementById('edit-profile-modal').classList.add('hidden');
+    }
+
+    function handleHTMLAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          alert("Image size should be less than 2MB.");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('edit-profile-avatar-preview').src = e.target.result;
+          tempAvatar = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveProfileChanges() {
+      const name = document.getElementById('edit-profile-name-input').value.trim();
+      const role = document.getElementById('edit-profile-role-input').value.trim();
+      const level = document.getElementById('edit-profile-level-input').value;
+      const bio = document.getElementById('edit-profile-bio-input').value.trim();
+      const skillsStr = document.getElementById('edit-profile-skills-input').value.trim();
+      const github = document.getElementById('edit-profile-github-input').value.trim();
+      const linkedin = document.getElementById('edit-profile-linkedin-input').value.trim();
+
+      if (!name || !role) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const skills = skillsStr ? skillsStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+      const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
+      const idx = users.findIndex(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+      
+      if (idx !== -1) {
+        users[idx].name = name;
+        users[idx].targetRole = role;
+        users[idx].level = level;
+        users[idx].avatar = tempAvatar;
+        users[idx].bio = bio;
+        users[idx].skills = skills;
+        users[idx].github = github;
+        users[idx].linkedin = linkedin;
+        localStorage.setItem('mockUsers', JSON.stringify(users));
+        
+        currentUser = users[idx];
+        closeEditProfileModal();
+        loginSuccess();
+        alert("Profile updated successfully!");
+      }
+    }
+
+    // RESUME BUILDER LOGIC
+    let resumeSkills = ['React', 'Node.js', 'MongoDB', 'Python', 'Git'];
+    let resumeExperiences = [
+      { company: 'Innovate Tech Labs', role: 'Frontend Development Fellow', duration: 'June 2025 - Present', description: 'Collaborated on developing premium responsive UI/UX dashboards. Reduced application bundle sizes by 20%.' }
+    ];
+    let resumeTemplate = 'modern';
+
+    function initResumeBuilder() {
+      if (currentUser) {
+        document.getElementById('res-name').value = currentUser.name;
+        document.getElementById('res-email').value = currentUser.email;
+      }
+      syncResumePreview();
+    }
+
+    function setResumeTemplate(tpl) {
+      resumeTemplate = tpl;
+      document.querySelectorAll('#page-resume-builder button[id^="tpl-btn-"]').forEach(btn => {
+        btn.className = "py-2.5 rounded-xl border border-slate-900 bg-slate-950/60 text-slate-400 text-xs font-bold hover:border-slate-800";
+      });
+      document.getElementById('tpl-btn-' + tpl).className = "py-2.5 rounded-xl border border-brand-primary bg-brand-primary/10 text-brand-primary text-xs font-bold";
+      
+      const sheet = document.getElementById('print-sheet-area');
+      if (tpl === 'minimalist') {
+        sheet.className = "w-full max-w-xl mx-auto bg-white text-slate-850 p-8 shadow-md rounded-2xl min-h-[720px] font-serif border-t-4 border-slate-900";
+      } else if (tpl === 'classic') {
+        sheet.className = "w-full max-w-xl mx-auto bg-white text-slate-850 p-8 shadow-md rounded-2xl min-h-[720px] font-sans border-double border-b-4 border-t-4 border-slate-800";
+      } else {
+        sheet.className = "w-full max-w-xl mx-auto bg-white text-slate-850 p-8 shadow-md rounded-2xl min-h-[720px] font-sans";
+      }
+      syncResumePreview();
+    }
+
+    function addResumeSkill() {
+      const input = document.getElementById('res-new-skill');
+      const val = input.value.trim();
+      if (val) {
+        resumeSkills.push(val);
+        input.value = '';
+        syncResumePreview();
+      }
+    }
+
+    function removeResumeSkill(idx) {
+      resumeSkills.splice(idx, 1);
+      syncResumePreview();
+    }
+
+    function addResumeExperience() {
+      const company = document.getElementById('res-exp-company').value.trim();
+      const role = document.getElementById('res-exp-role').value.trim();
+      const duration = document.getElementById('res-exp-duration').value.trim();
+      const description = document.getElementById('res-exp-desc').value.trim();
+
+      if (!company || !role || !duration) {
+        alert("Please fill in company, role, and duration.");
+        return;
+      }
+
+      resumeExperiences.push({ company, role, duration, description });
+      document.getElementById('res-exp-company').value = '';
+      document.getElementById('res-exp-role').value = '';
+      document.getElementById('res-exp-duration').value = '';
+      document.getElementById('res-exp-desc').value = '';
+      
+      syncResumePreview();
+    }
+
+    function removeResumeExperience(idx) {
+      resumeExperiences.splice(idx, 1);
+      syncResumePreview();
+    }
+
+    function syncResumePreview() {
+      const name = document.getElementById('res-name').value || 'Candidate Name';
+      const email = document.getElementById('res-email').value || 'email@example.com';
+      const phone = document.getElementById('res-phone').value;
+      const location = document.getElementById('res-location').value;
+      const website = document.getElementById('res-website').value;
+      const summary = document.getElementById('res-summary').value;
+
+      // Update Preview
+      document.getElementById('preview-full-name').innerText = name;
+      document.getElementById('preview-contact-details').innerHTML = `<span>${email}</span> • <span>${phone}</span> • <span>${location}</span>` + (website ? ` • <span>${website}</span>` : '');
+      document.getElementById('preview-summary').innerText = summary;
+
+      // Render Skills Tags in Left Form
+      const skillsTags = document.getElementById('res-skills-container');
+      skillsTags.innerHTML = resumeSkills.map((s, idx) => `
+        <span class="inline-flex items-center gap-1 text-[9px] font-bold bg-brand-primary/10 border border-brand-primary/20 text-brand-primary py-0.5 px-2 rounded-full uppercase">
+          ${s}
+          <button onclick="removeResumeSkill(${idx})" class="text-slate-500 hover:text-rose-400 font-bold ml-1 cursor-pointer">×</button>
+        </span>
+      `).join('');
+
+      // Render Experiences in Left Form
+      const expList = document.getElementById('res-exp-list');
+      expList.innerHTML = resumeExperiences.map((e, idx) => `
+        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-900 flex justify-between items-center text-[10px]">
+          <div>
+            <h4 class="font-bold text-white leading-none">${e.company}</h4>
+            <p class="text-slate-500 mt-1">${e.role} | ${e.duration}</p>
+          </div>
+          <button onclick="removeResumeExperience(${idx})" class="p-1 rounded bg-slate-900 text-slate-500 hover:text-rose-400 hover:border-slate-800 cursor-pointer">×</button>
+        </div>
+      `).join('');
+
+      // Render Preview Skills
+      document.getElementById('preview-skills-text').innerText = resumeSkills.join(' • ');
+
+      // Render Preview Experiences
+      const previewExp = document.getElementById('preview-experience-container');
+      previewExp.innerHTML = resumeExperiences.map(e => `
+        <div class="space-y-1 text-[11px]">
+          <div class="flex justify-between font-bold text-slate-900">
+            <span>${e.company}</span>
+            <span class="text-[9px] font-normal text-slate-500">${e.duration}</span>
+          </div>
+          <div class="text-[9px] text-slate-600 font-semibold italic">${e.role}</div>
+          <p class="text-slate-500 leading-relaxed text-[10px] mt-1 pl-2 border-l-2 border-slate-200">${e.description}</p>
+        </div>
+      `).join('');
+    }
+
+
+    // QUIZ ARENA LOGIC
+    let activeQuizPool = [];
+    let currentQuizIdx = 0;
+    let quizSelectedAnswers = {};
+    let quizTimeLeft = 300;
+    let quizTimerInterval = null;
+    let quizCategory = '';
+
+    const quizPools = {
+      aptitude: [
+        { q: "A train running at 60 km/h crosses a pole in 9 seconds. What is the length of the train in meters?", options: ["120 m", "150 m", "324 m", "180 m"], answer: 1 },
+        { q: "The average weight of 8 persons increases by 2.5 kg when a new person replaces one weighing 65 kg. Weight of the new person is:", options: ["76 kg", "82 kg", "85 kg", "88 kg"], answer: 2 },
+        { q: "If log 27 = 1.431, then the value of log 9 is:", options: ["0.934", "0.945", "0.954", "0.958"], answer: 2 },
+        { q: "A vendor bought toffees at 6 for a rupee. How many for a rupee must he sell to gain 20%?", options: ["3", "4", "5", "6"], answer: 2 },
+        { q: "What is the probability of getting a sum of 9 from two throws of a dice?", options: ["1/6", "1/8", "1/9", "1/12"], answer: 2 }
+      ],
+      technical: [
+        { q: "Which of the following is NOT a hook in React?", options: ["useState", "useEffect", "useFetcher", "useContext"], answer: 2 },
+        { q: "What does the 'typeof' operator return for 'null' in JavaScript?", options: ["'null'", "'undefined'", "'object'", "'string'"], answer: 2 },
+        { q: "Which database system is structured around the relational document model instead of tabular rows?", options: ["PostgreSQL", "MongoDB", "MySQL", "SQLite"], answer: 1 },
+        { q: "In CSS, what is the default value of the position property?", options: ["relative", "absolute", "static", "fixed"], answer: 2 },
+        { q: "Which HTTP status code represents 'Internal Server Error'?", options: ["400", "401", "404", "500"], answer: 3 }
+      ],
+      coding: [
+        { q: "What is the time complexity of searching a value in a balanced Binary Search Tree (BST)?", options: ["O(1)", "O(log N)", "O(N)", "O(N log N)"], answer: 1 },
+        { q: "Which data structure operates on a Last In First Out (LIFO) model?", options: ["Queue", "Stack", "Binary Tree", "Graph"], answer: 1 },
+        { q: "What is the output of `console.log(2 + '2')` in JavaScript?", options: ["4", "'4'", "'22'", "NaN"], answer: 2 },
+        { q: "What is the primary usage of the `useCallback` hook in React?", options: ["Caches calculations", "Caches function references", "Triggers sync states", "Bypasses state"], answer: 1 },
+        { q: "Which sort algorithm has a worst-case time complexity of O(N²)?", options: ["Merge Sort", "Quick Sort", "Heap Sort", "Radix Sort"], answer: 1 }
+      ]
+    };
+
+    function startHtmlQuiz(cat) {
+      quizCategory = cat;
+      activeQuizPool = quizPools[cat];
+      currentQuizIdx = 0;
+      quizSelectedAnswers = {};
+      quizTimeLeft = 300;
+
+      document.getElementById('quiz-start-screen').classList.add('hidden');
+      document.getElementById('quiz-result-screen').classList.add('hidden');
+      document.getElementById('quiz-run-screen').classList.remove('hidden');
+      
+      document.getElementById('quiz-run-category').innerText = cat.charAt(0).toUpperCase() + cat.slice(1) + " preparation";
+
+      if (quizTimerInterval) clearInterval(quizTimerInterval);
+      quizTimerInterval = setInterval(() => {
+        quizTimeLeft--;
+        if (quizTimeLeft <= 0) {
+          clearInterval(quizTimerInterval);
+          finishHtmlQuiz();
+        }
+        const mins = Math.floor(quizTimeLeft / 60);
+        const secs = quizTimeLeft % 60;
+        document.getElementById('quiz-timer-text').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      }, 1000);
+
+      renderQuizQuestion();
+    }
+
+    function renderQuizQuestion() {
+      const q = activeQuizPool[currentQuizIdx];
+      document.getElementById('quiz-question-tracker').innerText = `Question ${currentQuizIdx + 1} of ${activeQuizPool.length}`;
+      document.getElementById('quiz-question-text').innerText = q.q;
+
+      // Progress bar
+      document.getElementById('quiz-progress-bar').style.width = `${((currentQuizIdx + 1) / activeQuizPool.length) * 100}%`;
+
+      const optionsList = document.getElementById('quiz-options-list');
+      optionsList.innerHTML = q.options.map((opt, oIdx) => {
+        const isSelected = quizSelectedAnswers[currentQuizIdx] === oIdx;
+        return `
+          <button onclick="selectQuizOption(${oIdx})" class="p-4 rounded-2xl border text-left text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+            isSelected
+              ? 'border-brand-primary bg-brand-primary/10 text-brand-primary shadow-lg'
+              : 'border-slate-900 bg-slate-950/60 text-slate-300 hover:border-slate-800'
+          }">
+            <span class="font-mono mr-2.5 text-brand-secondary">${String.fromCharCode(65 + oIdx)}.</span>
+            ${opt}
+          </button>
+        `;
+      }).join('');
+
+      // Nav controls
+      document.getElementById('quiz-prev-btn').disabled = currentQuizIdx === 0;
+      
+      const nextBtn = document.getElementById('quiz-next-btn');
+      if (currentQuizIdx === activeQuizPool.length - 1) {
+        nextBtn.innerText = "Submit Quiz";
+        nextBtn.onclick = finishHtmlQuiz;
+      } else {
+        nextBtn.innerText = "Next Question";
+        nextBtn.onclick = nextQuizQuestion;
+      }
+    }
+
+    function selectQuizOption(oIdx) {
+      quizSelectedAnswers[currentQuizIdx] = oIdx;
+      renderQuizQuestion();
+    }
+
+    function nextQuizQuestion() {
+      if (currentQuizIdx < activeQuizPool.length - 1) {
+        currentQuizIdx++;
+        renderQuizQuestion();
+      }
+    }
+
+    function prevQuizQuestion() {
+      if (currentQuizIdx > 0) {
+        currentQuizIdx--;
+        renderQuizQuestion();
+      }
+    }
+
+    function finishHtmlQuiz() {
+      clearInterval(quizTimerInterval);
+      document.getElementById('quiz-run-screen').classList.add('hidden');
+      document.getElementById('quiz-result-screen').classList.remove('hidden');
+
+      // Calculate score
+      let correct = 0;
+      activeQuizPool.forEach((q, idx) => {
+        if (quizSelectedAnswers[idx] === q.answer) {
+          correct++;
+        }
+      });
+      const percent = Math.round((correct / activeQuizPool.length) * 100);
+
+      document.getElementById('quiz-result-score').innerText = `${percent}%`;
+      document.getElementById('quiz-result-correct').innerText = `${correct} of ${activeQuizPool.length} Correct`;
+
+      // Update radial SVG
+      const ring = document.getElementById('quiz-gauge-ring');
+      const circ = 2 * Math.PI * 50;
+      const offset = circ - (percent / 100) * circ;
+      ring.style.strokeDasharray = circ;
+      ring.style.strokeDashoffset = offset;
+
+      let feedback = "Outstanding! You displayed excellent mastery.";
+      if (percent < 80) feedback = "Good job! You have solid foundations, but review critiques.";
+      if (percent < 50) feedback = "Requires focus. Brush up on core concepts.";
+      document.getElementById('quiz-feedback-text').innerText = feedback;
+
+      // Question-by-question critique
+      const reviewContainer = document.getElementById('quiz-review-container');
+      reviewContainer.innerHTML = activeQuizPool.map((q, idx) => {
+        const isCorrect = quizSelectedAnswers[idx] === q.answer;
+        return `
+          <div class="p-4 rounded-2xl border border-slate-900 bg-slate-950/60 space-y-3">
+            <div class="flex items-start gap-2">
+              <i data-lucide="${isCorrect ? 'check-circle' : 'x-circle'}" class="w-4.5 h-4.5 ${isCorrect ? 'text-emerald-400' : 'text-rose-500'} shrink-0 mt-0.5"></i>
+              <div>
+                <h4 class="text-xs sm:text-sm font-bold text-white">${q.q}</h4>
+                <div class="mt-2 text-[10px] sm:text-xs space-y-1">
+                  <p class="text-slate-500">Your Selection: <span class="font-semibold ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}">${quizSelectedAnswers[idx] !== undefined ? q.options[quizSelectedAnswers[idx]] : '(No choice)'}</span></p>
+                  ${!isCorrect ? `<p class="text-slate-400">Correct: <span class="font-semibold text-emerald-400">${q.options[q.answer]}</span></p>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Update statistics
+      if (currentUser) {
+        currentUser.challengesCount = (currentUser.challengesCount || 0) + 1;
+        incrementWeeklyActivity();
+        
+        if (currentUser.challengesCount === 1) {
+          checkAndAwardBadge('Hello World!', 'Successfully compiled and solved your first coding challenge.', 'terminal');
+        } else if (currentUser.challengesCount === 5) {
+          checkAndAwardBadge('Logic Master', 'Solved 5 programming challenges in the online IDE room.', 'cpu');
+        }
+        
+        saveCurrentUserToStorage();
+        
+        setTimeout(() => {
+          loginSuccess();
+        }, 100);
+      }
+
+      lucide.createIcons();
+    }
+
+    function resetHtmlQuiz() {
+      document.getElementById('quiz-start-screen').classList.remove('hidden');
+      document.getElementById('quiz-run-screen').classList.add('hidden');
+      document.getElementById('quiz-result-screen').classList.add('hidden');
+    }
+
+
+    // DOMAIN PRACTICE HUB LOGIC
+    let activeDomain = null;
+    let currentDomainIdx = 0;
+    let domainAnswersHistory = [];
+
+    const domainList = [
+      { id: 'frontend', title: 'Frontend Developer', desc: 'HTML5, ES6+, CSS layouts (Grid/Flexbox), React state hooks, and client-side page rendering.', questions: ["What is the difference between client-side rendering (CSR) and server-side rendering (SSR), and when should you choose SSR?", "Explain the virtual DOM diffing process in React and how it reconciles updates.", "Explain lexical closures in JavaScript."] },
+      { id: 'backend', title: 'Backend Developer', desc: 'REST API design patterns, SQL vs NoSQL models, indexing optimizations, and query performance.', questions: ["What is a database index, and how does it speed up queries at the expense of write operations?", "Explain the difference between SQL and NoSQL relative to transactions (ACID vs BASE).", "What is CORS (Cross-Origin Resource Sharing) and how do headers secure backend servers?"] },
+      { id: 'fullstack', title: 'Full Stack Developer', desc: 'Connecting client UI grids with secure Node/Express routes, managing JSON web tokens.', questions: ["How do you securely configure user authentication using JWT headers, and where should you store them?", "How do you handle transactional operations that write to multiple database collections simultaneously?", "What is the MVC (Model-View-Controller) structure?"] },
+      { id: 'uiux', title: 'UI/UX Designer', desc: 'Contrast rules (WCAG guidelines), wireframing design fidelity, Fitts\'s Law.', questions: ["What is Fitts\'s Law in user interface design, and how does it impact CTA button layouts?", "How do WCAG accessibility rules impact contrast ratio selections on dark-themed UIs?", "What is the difference between user flows, wireframes, and prototypes?"] },
+      { id: 'java', title: 'Java Developer', desc: 'JVM garbage collection routines, heap configurations, multithreading synchronizations.', questions: ["How does Java Garbage Collection reclaim memory, and what is the difference between minor and major GC?", "What is the difference between HashMap, HashTable, and ConcurrentHashMap in Java?", "Explain polymorphism in OOP and method overloading vs overriding."] },
+      { id: 'python', title: 'Python Developer', desc: 'Mutable vs immutable structures, python decorator functions, generator statements.', questions: ["What is the difference between list mutable arrays and tuple immutable arrays in Python?", "Explain Python decorators and write a brief description of how they wrap outer function logs.", "What are generator statements (yield keyword) in Python and how do they optimize RAM?"] },
+      { id: 'dsa', title: 'Data Structures', desc: 'Graph traversals (DFS vs BFS), Hash collision strategies, sorting arrays.', questions: ["What is a Hash Collision, and how do chaining and open addressing resolve collisions?", "Compare Depth First Search (DFS) and Breadth First Search (BFS) space complexity constraints.", "Explain a practical application of a Stack and how it maintains element orders."] },
+      { id: 'hr', title: 'HR Interview Questions', desc: 'STAR storytelling frameworks, conflict resolutions, professional goals audit.', questions: ["Tell me about a time you faced a tight project deadline. How did you organize deliverables?", "Why should we hire you over other candidates for this software engineering position?", "How do you handle technical disagreements or conflicts with senior engineers?"] }
+    ];
+
+    function initDomainPractice() {
+      document.getElementById('domain-start-screen').classList.remove('hidden');
+      document.getElementById('domain-run-screen').classList.add('hidden');
+      document.getElementById('domain-finish-screen').classList.add('hidden');
+
+      const container = document.getElementById('domain-grid-container');
+      container.innerHTML = domainList.map(dom => `
+        <div class="p-6 rounded-3xl border border-slate-900 bg-slate-900/10 flex flex-col justify-between items-start space-y-5 hover:border-slate-800 transition-all group">
+          <div class="space-y-2">
+            <div class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-850 flex items-center justify-center text-brand-primary group-hover:scale-105 transition-transform duration-200">
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-sm sm:text-base font-extrabold text-white group-hover:text-brand-primary transition-colors">${dom.title}</h3>
+            <p class="text-[10px] sm:text-xs text-slate-500 leading-normal line-clamp-3">${dom.desc}</p>
+          </div>
+          <button onclick="startDomainPractice('${dom.id}')" class="px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-900 text-[10px] font-bold text-slate-400 hover:text-white border border-slate-900 transition-colors flex items-center gap-1.5"><i data-lucide="play" class="w-3 h-3"></i> Practice Domain</button>
+        </div>
+      `).join('');
+      
+      lucide.createIcons();
+    }
+
+    function startDomainPractice(id) {
+      activeDomain = domainList.find(d => d.id === id);
+      currentDomainIdx = 0;
+      domainAnswersHistory = [];
+
+      document.getElementById('domain-start-screen').classList.add('hidden');
+      document.getElementById('domain-finish-screen').classList.add('hidden');
+      document.getElementById('domain-run-screen').classList.remove('hidden');
+
+      document.getElementById('domain-run-title').innerText = activeDomain.title;
+      renderDomainQuestion();
+    }
+
+    function renderDomainQuestion() {
+      document.getElementById('domain-run-tracker').innerText = `Q: ${currentDomainIdx + 1} / ${activeDomain.questions.length}`;
+      document.getElementById('domain-progress-bar').style.width = `${((currentDomainIdx + 1) / activeDomain.questions.length) * 100}%`;
+      document.getElementById('domain-question-text').innerText = activeDomain.questions[currentDomainIdx];
+
+      document.getElementById('domain-answer-textarea').value = '';
+      document.getElementById('domain-answer-textarea').disabled = false;
+      document.getElementById('domain-critique-idle').classList.remove('hidden');
+      document.getElementById('domain-critique-panel').classList.add('hidden');
+      
+      document.getElementById('domain-validate-btn').classList.remove('hidden');
+      document.getElementById('domain-next-btn').classList.add('hidden');
+    }
+
+    function submitDomainAnswer() {
+      const text = document.getElementById('domain-answer-textarea').value.trim();
+      if (!text) {
+        alert("Please write a detailed explanation first.");
+        return;
+      }
+
+      document.getElementById('domain-answer-textarea').disabled = true;
+      document.getElementById('domain-validate-btn').innerHTML = `<span class="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span> Evaluating...`;
+      
+      setTimeout(() => {
+        document.getElementById('domain-validate-btn').innerHTML = `<i data-lucide="cpu" class="w-4 h-4"></i> Validate via AI`;
+        document.getElementById('domain-validate-btn').classList.add('hidden');
+        document.getElementById('domain-next-btn').classList.remove('hidden');
+
+        document.getElementById('domain-critique-idle').classList.add('hidden');
+        document.getElementById('domain-critique-panel').classList.remove('hidden');
+
+        const words = text.split(/\s+/).length;
+        const score = words < 12 ? 40 : words < 25 ? 68 : 86;
+
+        document.getElementById('domain-critique-score-text').innerText = `AI Score: ${score}%`;
+        
+        const label = document.getElementById('domain-critique-label');
+        const box = document.getElementById('domain-critique-score-box');
+        
+        if (score >= 80) {
+          label.innerText = "Correct Answer";
+          box.className = "p-4 rounded-2xl border flex items-center gap-3 text-emerald-400 border-emerald-500/20 bg-emerald-500/5";
+        } else if (score >= 50) {
+          label.innerText = "Partially Correct";
+          box.className = "p-4 rounded-2xl border flex items-center gap-3 text-amber-400 border-amber-500/20 bg-amber-500/5";
+        } else {
+          label.innerText = "Weak Answer";
+          box.className = "p-4 rounded-2xl border flex items-center gap-3 text-rose-400 border-rose-500/20 bg-rose-500/5";
+        }
+
+        document.getElementById('domain-critique-feedback').innerText = `Your response covers key definitions. Critique analysis shows correct use of parameters but missing scale considerations.`;
+        document.getElementById('domain-critique-suggestions').innerText = `Integrate additional structural parameters (e.g. bundle size tradeoffs, sharding algorithms).`;
+
+        domainAnswersHistory.push({ score, question: activeDomain.questions[currentDomainIdx], answer: text });
+        lucide.createIcons();
+      }, 900);
+    }
+
+    function nextDomainQuestion() {
+      if (currentDomainIdx < activeDomain.questions.length - 1) {
+        currentDomainIdx++;
+        renderDomainQuestion();
+      } else {
+        finishDomainPractice();
+      }
+    }
+    function finishDomainPractice() {
+      document.getElementById('domain-run-screen').classList.add('hidden');
+      document.getElementById('domain-finish-screen').classList.remove('hidden');
+
+      let sum = 0;
+      domainAnswersHistory.forEach(h => sum += h.score);
+      const overall = Math.round(sum / domainAnswersHistory.length);
+
+      document.getElementById('domain-final-score').innerText = `${overall}%`;
+      
+      const badge = document.getElementById('domain-final-score');
+      if (overall >= 80) {
+        badge.className = "text-2xl font-extrabold text-emerald-400";
+      } else if (overall >= 50) {
+        badge.className = "text-2xl font-extrabold text-amber-400";
+      } else {
+        badge.className = "text-2xl font-extrabold text-rose-500";
+      }
+
+      // Update current user stats
+      if (currentUser) {
+        currentUser.interviewsCount = (currentUser.interviewsCount || 0) + 1;
+        const oldTotal = (currentUser.avgScore || 0) * ((currentUser.interviewsCount || 1) - 1);
+        currentUser.avgScore = Math.round((oldTotal + overall) / currentUser.interviewsCount);
+        
+        incrementWeeklyActivity();
+        
+        if (currentUser.interviewsCount === 1) {
+          checkAndAwardBadge('First Step taken!', 'Completed your very first AI Mock Interview session.', 'compass');
+        }
+        if (overall >= 85) {
+          checkAndAwardBadge('Honor Graduate', 'Achieved an outstanding overall score above 85% in an interview.', 'star');
+        }
+        
+        saveCurrentUserToStorage();
+        
+        setTimeout(() => {
+          loginSuccess();
+        }, 100);
+      }
+    }
+    function handleHtmlDomainRetake() {
+      startDomainPractice(activeDomain.id);
+    }
+
+    function resetDomainPractice() {
+      document.getElementById('domain-start-screen').classList.remove('hidden');
+      document.getElementById('domain-run-screen').classList.add('hidden');
+      document.getElementById('domain-finish-screen').classList.add('hidden');
+    }
+
+    // MOCK INTERVIEW CORE LOGIC
+    let interviewQuestionsList = [];
+    let currentInterviewIdx = 0;
+    let interviewJobTitle = "";
+    let interviewNumQuestions = 5;
+    let interviewAnswersHistory = [];
+    let interviewSpeechRecognition = null;
+    let isMockRecording = false;
+    let interviewScores = [];
+
+    const mockInterviewQuestions = {
+      "Frontend Engineer": [
+        "What is the difference between client-side rendering (CSR) and server-side rendering (SSR), and when should you choose SSR?",
+        "Explain the virtual DOM diffing process in React and how it reconciles updates.",
+        "Explain lexical closures in JavaScript and how they are used."
+      ],
+      "Product Manager": [
+        "How do you prioritize features for a product roadmap under tight constraints?",
+        "Describe a time when you had to make a product decision without complete data.",
+        "How do you define and track success metrics for a new feature launch?"
+      ],
+      "Data Analyst": [
+        "What is the difference between a left join and an inner join in SQL?",
+        "Explain the concept of P-value and statistical significance in simple terms.",
+        "How do you handle missing or dirty data in a dataset before analysis?"
+      ],
+      "default": [
+        "What is the event loop in JavaScript, and how does it handle asynchronous operations?",
+        "Explain how you handle conflicts within a software engineering team.",
+        "What is your approach to learning a new codebase or technology quickly?"
+      ]
+    };
+
+    function selectSetupRole(role) {
+      document.getElementById('setup-job-title').value = role;
+    }
+
+    function fillMockJobDescription() {
+      const role = document.getElementById('setup-job-title').value.trim();
+      let desc = "Seeking a talented software practitioner to help design, test, build and maintain highly reliable scalable client features in high performance code environments.";
+      if (role === 'Frontend Engineer') {
+        desc = "Seeking a Frontend Engineer experienced in React, modern JavaScript (ES6+), responsive CSS layouts (Grid/Flexbox), component testing, bundle optimization, and high performance client page rendering.";
+      } else if (role === 'Product Manager') {
+        desc = "Seeking a Product Manager to define roadmap priority features, direct cross-functional designer/engineer teams, coordinate sprint planning, and analyze user growth/engagement telemetry metrics.";
+      } else if (role === 'Data Analyst') {
+        desc = "Seeking a Data Analyst with robust experience writing complex SQL queries, building Tableau visualization reports, scrubbing dirty data tables, and using statistical methodologies to verify A/B test results.";
+      }
+      document.getElementById('setup-job-desc').value = desc;
+      updateCharCount(document.getElementById('setup-job-desc'));
+    }
+
+    function updateCharCount(el) {
+      const count = el.value.length;
+      document.getElementById('char-counter').innerText = `${count} / 5000 characters`;
+    }
+
+    function triggerResumeUpload() {
+      document.getElementById('setup-resume-file').click();
+    }
+
+    function handleSetupResumeChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        document.getElementById('resume-status-text').innerText = file.name;
+        document.getElementById('resume-icon-box').className = "w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0";
+        document.getElementById('resume-icon-box').innerHTML = '<i data-lucide="check-circle" class="w-5 h-5"></i>';
+        lucide.createIcons();
+      }
+    }
+
+    let isSetupAccordionOpen = false;
+    function toggleSetupAccordion() {
+      isSetupAccordionOpen = !isSetupAccordionOpen;
+      const content = document.getElementById('setup-accordion-content');
+      const arrow = document.getElementById('accordion-arrow');
+      const badge = document.getElementById('accordion-badge');
+      if (isSetupAccordionOpen) {
+        content.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+        badge.innerText = 'Advanced';
+      } else {
+        content.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+        badge.innerText = 'Basic setup';
+      }
+    }
+
+    function startMockInterview() {
+      const jobTitle = document.getElementById('setup-job-title').value.trim();
+      if (!jobTitle) {
+        alert("Please enter a Job Title / Role first.");
+        return;
+      }
+
+      interviewJobTitle = jobTitle;
+      interviewNumQuestions = parseInt(document.getElementById('setup-num-questions').value) || 5;
+      
+      // Determine questions pool
+      let pool = mockInterviewQuestions[jobTitle] || mockInterviewQuestions["default"];
+      // If the pool is smaller than requested, repeat or pad with defaults
+      if (pool.length < interviewNumQuestions) {
+        pool = [...pool, ...mockInterviewQuestions["default"]];
+      }
+      // Shuffle & Slice to matching count
+      interviewQuestionsList = pool.slice(0, interviewNumQuestions);
+      currentInterviewIdx = 0;
+      interviewAnswersHistory = [];
+      interviewScores = [];
+
+      // Update UI title and display
+      document.getElementById('active-interview-role-title').innerText = `${interviewJobTitle} Mock Interview`;
+      document.getElementById('interview-setup-view').classList.add('hidden');
+      document.getElementById('interview-active-view').classList.remove('hidden');
+      document.getElementById('evaluation-card').classList.add('hidden');
+
+      loadMockQuestion();
+    }
+
+    function loadMockQuestion() {
+      const q = interviewQuestionsList[currentInterviewIdx];
+      document.getElementById('mock-question-field').innerText = `"${q}"`;
+      document.getElementById('active-question-badge').innerText = `QUESTION ${currentInterviewIdx + 1} OF ${interviewQuestionsList.length}`;
+      document.getElementById('mock-answer-textarea').value = '';
+      document.getElementById('evaluation-card').classList.add('hidden');
+      
+      // Stop any recording
+      if (isMockRecording) {
+        toggleMockRecording();
+      }
+
+      // Read aloud automatically
+      setTimeout(() => {
+        speakMockQuestion();
+      }, 500);
+    }
+
+    function speakMockQuestion() {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const txt = document.getElementById('mock-question-field').innerText;
+      const utterance = new SpeechSynthesisUtterance(txt);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      const voices = window.speechSynthesis.getVoices();
+      const engVoice = voices.find(v => v.lang.startsWith('en-'));
+      if (engVoice) utterance.voice = engVoice;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleMockRecording() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Speech recognition is not supported in this browser. Please type your reply instead.");
+        return;
+      }
+
+      if (!interviewSpeechRecognition) {
+        interviewSpeechRecognition = new SpeechRecognition();
+        interviewSpeechRecognition.continuous = true;
+        interviewSpeechRecognition.interimResults = true;
+        interviewSpeechRecognition.lang = 'en-US';
+
+        interviewSpeechRecognition.onresult = (e) => {
+          let transcript = '';
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            transcript += e.results[i][0].transcript;
+          }
+          document.getElementById('mock-answer-textarea').value = transcript;
+        };
+
+        interviewSpeechRecognition.onerror = (e) => {
+          console.error("Speech Recognition Error:", e);
+        };
+
+        interviewSpeechRecognition.onend = () => {
+          isMockRecording = false;
+          document.getElementById('recording-pulse').classList.add('hidden');
+          document.getElementById('btn-rec').className = "w-10 h-10 rounded-xl bg-slate-950 border border-slate-900 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer";
+        };
+      }
+
+      if (isMockRecording) {
+        interviewSpeechRecognition.stop();
+      } else {
+        isMockRecording = true;
+        document.getElementById('mock-answer-textarea').value = '';
+        document.getElementById('recording-pulse').classList.remove('hidden');
+        document.getElementById('btn-rec').className = "w-10 h-10 rounded-xl bg-rose-600 border border-rose-500/30 text-white flex items-center justify-center cursor-pointer animate-pulse";
+        try {
+          interviewSpeechRecognition.start();
+        } catch(e) {
+          console.error(e);
+        }
+      }
+    }
+
+    function submitMockAnswer() {
+      const answer = document.getElementById('mock-answer-textarea').value.trim();
+      if (!answer) {
+        alert("Please write or record your answer first.");
+        return;
+      }
+
+      if (isMockRecording) {
+        toggleMockRecording();
+      }
+
+      // Compute grade score
+      const words = answer.split(/\s+/).length;
+      let score = 55;
+      let feedback = "A basic answer. Try to mention concrete structural terms and provide specific examples from past work.";
+      let strengths = ["Expressed a clear general outline of the concept."];
+      let weaknesses = ["Needs more concrete keywords", "Should explain the asynchronous event execution flow"];
+
+      if (words > 15) {
+        score = 72;
+        feedback = "Solid answer. You covered the base concept, but did not delve deep into microtask queues or thread architectures.";
+        strengths = ["Structured explanation", "Explicit lifecycle breakdown"];
+        weaknesses = ["Lacks references to specific queues", "Did not discuss thread isolation"];
+      }
+      if (words > 30) {
+        score = 88;
+        feedback = "Excellent overview! You correctly detailed execution lifecycles, queue ordering mechanics, and processing threads.";
+        strengths = ["Mentioned Call Stack and Microtask Queue keywords", "Clear real-world project example", "Correct priority explanation"];
+        weaknesses = ["Could touch on browser APIs interaction details"];
+      }
+
+      // Display evaluation
+      document.getElementById('eval-score').innerText = `${score}%`;
+      document.getElementById('eval-feedback').innerText = feedback;
+      document.getElementById('eval-strengths').innerHTML = strengths.map(s => `<li>${s}</li>`).join('');
+      document.getElementById('eval-weaknesses').innerHTML = weaknesses.map(w => `<li>${w}</li>`).join('');
+      
+      interviewScores.push(score);
+      
+      const btnNext = document.getElementById('btn-next-mock');
+      if (currentInterviewIdx === interviewQuestionsList.length - 1) {
+        btnNext.innerText = "Finish Session";
+      } else {
+        btnNext.innerText = "Next Question";
+      }
+
+      document.getElementById('evaluation-card').classList.remove('hidden');
+    }
+
+    function nextMockQuestion() {
+      if (currentInterviewIdx < interviewQuestionsList.length - 1) {
+        currentInterviewIdx++;
+        loadMockQuestion();
+      } else {
+        let totalScore = 0;
+        interviewScores.forEach(s => totalScore += s);
+        const sessionAvg = Math.round(totalScore / Math.max(1, interviewScores.length));
+        
+        // Update user stats
+        if (currentUser) {
+          currentUser.interviewsCount = (currentUser.interviewsCount || 0) + 1;
+          const oldTotal = (currentUser.avgScore || 0) * ((currentUser.interviewsCount || 1) - 1);
+          currentUser.avgScore = Math.round((oldTotal + sessionAvg) / currentUser.interviewsCount);
+          
+          incrementWeeklyActivity();
+          
+          if (currentUser.interviewsCount === 1) {
+            checkAndAwardBadge('First Step taken!', 'Completed your very first AI Mock Interview session.', 'compass');
+          }
+          if (sessionAvg >= 85) {
+            checkAndAwardBadge('Honor Graduate', 'Achieved an outstanding overall score above 85% in an interview.', 'star');
+          }
+          
+          saveCurrentUserToStorage();
+        }
+
+        alert(`Interview Session complete! Overall Score: ${sessionAvg}%. Returning to Dashboard.`);
+        resetMockInterview();
+        loginSuccess();
+        showPage('dashboard');
+      }
+    }
+
+    function resetMockInterview() {
+      if (isMockRecording && interviewSpeechRecognition) {
+        interviewSpeechRecognition.stop();
+      }
+      document.getElementById('interview-setup-view').classList.remove('hidden');
+      document.getElementById('interview-active-view').classList.add('hidden');
+      document.getElementById('evaluation-card').classList.add('hidden');
+    }
+
+    // CODING IDE LOGIC
+    let codingChallengeTimerInterval = null;
+    let codingChallengeTimeRemaining = 2700;
+    let isCodingTimerRunning = false;
+    let activeCodingChallenge = null;
+    let requestedHintsCount = 0;
+
+    const domainCodingChallenges = {
+      "Frontend Engineer": {
+        title: "Implement Phone Number Formatter",
+        category: "FRONTEND / JAVASCRIPT",
+        difficulty: "EASY",
+        description: "Write a function <code class='bg-slate-950 px-1 py-0.5 rounded'>formatPhoneNumber(numbers)</code> that takes an array of 10 integers (between 0 and 9) and returns a string of those numbers formatted as a phone number: <code class='bg-slate-950 px-1 py-0.5 rounded'>(123) 456-7890</code>.",
+        code: `function formatPhoneNumber(numbers) {\n    // Write your frontend code here\n    \n}`,
+        hints: [
+          "Use array slicing or substring methods to group the digits.",
+          "You can use template literals: `(\${first}) \${second}-\${third}`.",
+          "Check that the input array length is exactly 10."
+        ]
+      },
+      "Data Analyst": {
+        title: "Second Highest Salary Query",
+        category: "DATABASE / SQL",
+        difficulty: "MEDIUM",
+        description: "Write a SQL query to find the second highest salary from the <code class='bg-slate-950 px-1 py-0.5 rounded'>Employee</code> table. If there is no second highest salary, return <code class='bg-slate-950 px-1 py-0.5 rounded'>null</code>.",
+        code: `-- Write your SQL query here\nSELECT DISTINCT salary \nFROM Employee \n...`,
+        hints: [
+          "Use the ORDER BY and LIMIT clauses to find the ranks.",
+          "Use OFFSET 1 to skip the highest salary.",
+          "Wrap it in a subquery or use IFNULL / COALESCE to handle cases with no second highest salary."
+        ]
+      },
+      "Java Developer": {
+        title: "Valid Anagram in Java",
+        category: "JAVA / STRUCTURES",
+        difficulty: "EASY",
+        description: "Write a Java method <code class='bg-slate-950 px-1 py-0.5 rounded'>isAnagram(String s, String t)</code> that returns <code class='bg-slate-950 px-1 py-0.5 rounded'>true</code> if <code class='bg-slate-950 px-1 py-0.5 rounded'>t</code> is an anagram of <code class='bg-slate-950 px-1 py-0.5 rounded'>s</code>, and <code class='bg-slate-950 px-1 py-0.5 rounded'>false</code> otherwise.",
+        code: `public class Solution {\n    public boolean isAnagram(String s, String t) {\n        // Write your Java code here\n        return false;\n    }\n}`,
+        hints: [
+          "An anagram must have the exact same length.",
+          "You can sort the character arrays and compare them: Arrays.sort().",
+          "Alternatively, use a frequency array or hash map to count characters."
+        ]
+      },
+      "Python Developer": {
+        title: "Two Sum in Python",
+        category: "PYTHON / ALGORITHMS",
+        difficulty: "EASY",
+        description: "Write a Python function <code class='bg-slate-950 px-1 py-0.5 rounded'>two_sum(nums: list, target: int) -> list</code> that returns indices of the two numbers such that they add up to target.",
+        code: `def two_sum(nums, target):\n    # Write your Python code here\n    pass`,
+        hints: [
+          "Use a dictionary to store values and their indices as you iterate.",
+          "The complement is target - current_value.",
+          "Return the indices of current_value and complement if found."
+        ]
+      },
+      "default": {
+        title: "Two Sum in JavaScript",
+        category: "ALGORITHMS / JAVASCRIPT",
+        difficulty: "EASY",
+        description: "Given an array of integers <code class='bg-slate-950 px-1 py-0.5 rounded'>nums</code> and an integer <code class='bg-slate-950 px-1 py-0.5 rounded'>target</code>, return indices of the two numbers such that they add up to <code class='bg-slate-950 px-1 py-0.5 rounded'>target</code>.",
+        code: `function twoSum(nums, target) {\n    // Write your code here\n    \n}`,
+        hints: [
+          "Use a Hash Map to store numbers and their indices.",
+          "Compute the complement: target - nums[i].",
+          "Check if complement exists in the map."
+        ]
+      }
+    };
+
+    function initCodingIDE() {
+      if (codingChallengeTimerInterval) {
+        clearInterval(codingChallengeTimerInterval);
+      }
+      codingChallengeTimeRemaining = 2700;
+      isCodingTimerRunning = false;
+      requestedHintsCount = 0;
+
+      document.getElementById('coding-hints-container').innerHTML = `
+        <div class="p-3 bg-slate-950 border border-slate-900 rounded-lg">Stuck? Click request hint above.</div>
+      `;
+      document.getElementById('coding-timer-text').innerHTML = `45:00 <span class="text-[9px] text-slate-500 font-sans ml-1 uppercase font-normal">(Starts when you type)</span>`;
+      
+      const targetRole = currentUser ? currentUser.targetRole : 'default';
+      let resolvedRole = 'default';
+      const roleLower = targetRole.toLowerCase();
+      if (roleLower.includes('frontend') || roleLower.includes('javascript') || roleLower.includes('web')) {
+        resolvedRole = 'Frontend Engineer';
+      } else if (roleLower.includes('data') || roleLower.includes('sql') || roleLower.includes('database') || roleLower.includes('analyst')) {
+        resolvedRole = 'Data Analyst';
+      } else if (roleLower.includes('java') && !roleLower.includes('javascript')) {
+        resolvedRole = 'Java Developer';
+      } else if (roleLower.includes('python')) {
+        resolvedRole = 'Python Developer';
+      }
+      activeCodingChallenge = domainCodingChallenges[resolvedRole] || domainCodingChallenges['default'];
+
+      document.getElementById('coding-category-badge').innerText = activeCodingChallenge.category;
+      document.getElementById('coding-challenge-title').innerText = activeCodingChallenge.title;
+      document.getElementById('coding-challenge-desc').innerHTML = activeCodingChallenge.description;
+      document.getElementById('coding-area').value = activeCodingChallenge.code;
+      document.getElementById('compiler-terminal').innerText = "Console idle. Start typing in the editor to trigger the timer.";
+    }
+
+    function triggerCodingTimer() {
+      if (isCodingTimerRunning) return;
+      isCodingTimerRunning = true;
+      document.getElementById('compiler-terminal').innerText = "Timer started! Compiling test suites on save.";
+      
+      // Update timer text immediately to remove the starts-on-typing label
+      const minsInit = Math.floor(codingChallengeTimeRemaining / 60);
+      const secsInit = codingChallengeTimeRemaining % 60;
+      document.getElementById('coding-timer-text').innerText = `${minsInit.toString().padStart(2, '0')}:${secsInit.toString().padStart(2, '0')}`;
+
+      codingChallengeTimerInterval = setInterval(() => {
+        codingChallengeTimeRemaining--;
+        if (codingChallengeTimeRemaining <= 0) {
+          clearInterval(codingChallengeTimerInterval);
+          isCodingTimerRunning = false;
+          alert("Time is up! Solution submitted automatically.");
+          runMockCode();
+        }
+        const mins = Math.floor(codingChallengeTimeRemaining / 60);
+        const secs = codingChallengeTimeRemaining % 60;
+        document.getElementById('coding-timer-text').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    function requestCodingHint() {
+      if (!activeCodingChallenge) return;
+      const hintsContainer = document.getElementById('coding-hints-container');
+      
+      if (requestedHintsCount < activeCodingChallenge.hints.length) {
+        if (requestedHintsCount === 0) {
+          hintsContainer.innerHTML = '';
+        }
+        const hint = activeCodingChallenge.hints[requestedHintsCount];
+        hintsContainer.innerHTML += `
+          <div class="p-3 bg-brand-primary/5 border border-brand-primary/10 rounded-lg text-slate-300">
+            <span class="font-bold text-brand-primary block text-[10px] uppercase mb-1">AI Logic Hint #${requestedHintsCount + 1}</span>
+            ${hint}
+          </div>
+        `;
+        requestedHintsCount++;
+      } else {
+        alert("All progressive hints have been unlocked!");
+      }
+    }
+
+    function runMockCode() {
+      const codeVal = document.getElementById('coding-area').value.trim();
+      const terminal = document.getElementById('compiler-terminal');
+      
+      terminal.innerHTML = `<span class="text-slate-500">Compiling boilerplate...</span><br/><span class="text-slate-500">Executing sandbox test cases...</span>`;
+      
+      setTimeout(() => {
+        if (codeVal.length < 50) {
+          terminal.innerHTML = `<span class="text-rose-400">Failed: Code output empty or invalid syntax parameters. Please write a complete implementation first.</span>`;
+        } else {
+          terminal.innerHTML = `<span class="text-emerald-400 font-bold">Success: All sandbox test cases verified. Complexity verified: O(N) Time / O(N) Space.</span>`;
+          
+          if (currentUser) {
+            currentUser.challengesCount = (currentUser.challengesCount || 0) + 1;
+            incrementWeeklyActivity();
+            
+            if (currentUser.challengesCount === 1) {
+              checkAndAwardBadge('Hello World!', 'Successfully compiled and solved your first coding challenge.', 'terminal');
+            } else if (currentUser.challengesCount === 5) {
+              checkAndAwardBadge('Logic Master', 'Solved 5 programming challenges in the online IDE room.', 'cpu');
+            }
+            
+            saveCurrentUserToStorage();
+            
+            setTimeout(() => {
+              loginSuccess();
+            }, 100);
+          }
+        }
+      }, 1000);
+    }
+
+    // ATS RESUME SCANNING INTERACTIVE SIMULATION
+    let atsUploadedFile = null;
+
+    function triggerAtsResumeUpload() {
+      document.getElementById('ats-resume-file').click();
+    }
+
+    function handleAtsResumeChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        atsUploadedFile = file;
+        const sizeKb = (file.size / 1024).toFixed(1);
+        document.getElementById('ats-resume-status-text').innerText = file.name;
+        document.getElementById('ats-resume-details').innerText = `PDF Uploaded (${sizeKb} KB)`;
+        
+        // Style changes
+        const dropzone = document.getElementById('ats-dropzone');
+        dropzone.className = "border-2 border-dashed border-emerald-500/30 bg-emerald-500/5 p-6 rounded-xl text-center cursor-pointer flex flex-col justify-center items-center h-40 relative";
+        
+        const uploadIcon = document.getElementById('ats-upload-icon');
+        uploadIcon.setAttribute('data-lucide', 'check-circle');
+        uploadIcon.className = "w-8 h-8 text-emerald-400 mb-2";
+        
+        lucide.createIcons();
+        alert(`Selected resume "${file.name}" successfully! Click 'Run ATS Scan check' to analyze.`);
+      }
+    }
+
+    function runATSScan() {
+      if (!atsUploadedFile) {
+        alert("Please upload a resume file first before scanning!");
+        return;
+      }
+      
+      const report = document.getElementById('ats-scan-report');
+      const idleBox = document.getElementById('ats-idle-box');
+      
+      // Simulate parser check
+      idleBox.innerText = "Analyzing CV structure & keywords checklist...";
+      idleBox.classList.remove('hidden');
+      report.classList.add('hidden');
+      
+      setTimeout(() => {
+        idleBox.classList.add('hidden');
+        report.classList.remove('hidden');
+        
+        // Dynamically compute mock results based on file name or target role
+        const targetRole = currentUser ? currentUser.targetRole : 'Software Engineer';
+        
+        // Build customized recommendations based on role
+        let matched = ["REACT", "JAVASCRIPT", "HTML5", "CSS3", "GIT"];
+        let missing = ["DOCKER", "AWS CLOUD", "CI/CD PIPELINES", "TYPESCRIPT"];
+        let score = 78;
+        
+        if (targetRole.toLowerCase().includes('data') || targetRole.toLowerCase().includes('analyst')) {
+          matched = ["SQL", "PYTHON", "EXCEL", "TABLEAU", "DATA CLEANING"];
+          missing = ["SPARK", "HADOOP", "PANDAS", "A/B TESTING"];
+          score = 82;
+        } else if (targetRole.toLowerCase().includes('java')) {
+          matched = ["JAVA", "SPRING BOOT", "SQL", "GIT", "REST APIS"];
+          missing = ["MICROSERVICES", "KUBERNETES", "MAVEN", "JUNIT"];
+          score = 85;
+        } else if (targetRole.toLowerCase().includes('python')) {
+          matched = ["PYTHON", "DJANGO", "GIT", "POSTGRESQL", "PANDAS"];
+          missing = ["FASTAPI", "DOCKER", "PYTEST", "REDIS"];
+          score = 80;
+        }
+        
+        // Populate matched keywords
+        let matchedHtml = '';
+        matched.forEach(kw => {
+          matchedHtml += `<span class="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full uppercase">${kw}</span>`;
+        });
+        
+        // Populate missing keywords
+        let missingHtml = '';
+        missing.forEach(kw => {
+          missingHtml += `<span class="text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-full uppercase">${kw}</span>`;
+        });
+        
+        // Update scorecard DOM
+        report.innerHTML = `
+          <div class="p-6 rounded-2xl border border-slate-900 bg-slate-900/10 flex justify-between items-center animate-fade-in">
+            <div>
+              <span class="text-[9px] font-bold text-brand-primary bg-brand-primary/10 px-2.5 py-0.5 rounded-full">ATS SCORECARD</span>
+              <h3 class="text-base font-bold text-white mt-2">ATS Compatibility Scored</h3>
+              <p class="text-[9px] text-slate-500 mt-1">CV File: ${atsUploadedFile.name}</p>
+            </div>
+            <div class="w-14 h-14 bg-gradient-to-tr from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white font-extrabold text-lg shadow-glow-cyan">
+              ${score}%
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-5 rounded-xl border border-slate-900 bg-slate-900/10 space-y-2">
+              <h4 class="font-bold text-xs text-emerald-400">Matched Keywords (${matched.length})</h4>
+              <div class="flex flex-wrap gap-1">
+                ${matchedHtml}
+              </div>
+            </div>
+            <div class="p-5 rounded-xl border border-slate-900 bg-slate-900/10 space-y-2">
+              <h4 class="font-bold text-xs text-rose-400">Missing Keywords (${missing.length})</h4>
+              <div class="flex flex-wrap gap-1">
+                ${missingHtml}
+              </div>
+            </div>
+          </div>
+          
+          <div class="p-5 rounded-xl border border-slate-900 bg-slate-900/10 space-y-3">
+            <h4 class="font-bold text-xs text-white">ATS Feedback Suggestions</h4>
+            <ul class="list-disc pl-4 text-xs text-slate-400 space-y-1.5 leading-relaxed">
+              <li>Add missing technical keywords to increase search relevance.</li>
+              <li>Avoid complex two-column layout templates to prevent layout scrambling in older parse engines.</li>
+              <li>Ensure all dates are formatted consistently (e.g. MM/YYYY or Year - Year).</li>
+            </ul>
+          </div>
+        `;
+        
+        if (currentUser) {
+          checkAndAwardBadge('ATS Ready', 'Ran your resume through the ATS scanner successfully.', 'file-text');
+          saveCurrentUserToStorage();
+          setTimeout(() => {
+            loginSuccess();
+          }, 100);
+        }
+      }, 1500);
+    }
+
+    // Direct first-time users to log in
+    showPage('auth');
+  </script>
+</body>
+</html>
